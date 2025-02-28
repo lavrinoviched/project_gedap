@@ -26,18 +26,12 @@ export class UsersService {
 
  
 
-  async findOne(username: string): Promise<User | undefined> {
-
+  async findOne(username: string): Promise<User | null> {
     return this.userRepository.findOneBy({ name: username });
-
   }
-
- 
-
-  async findOneById(id: number): Promise<User | undefined> {
-
+  
+  async findOneById(id: number): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
-
   }
 
  
