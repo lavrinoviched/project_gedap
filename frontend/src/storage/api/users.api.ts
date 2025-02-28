@@ -1,6 +1,6 @@
 import { api } from './axios';
 
-import { CreateUserDto, SecuredUser, UpdateUserDto } from '../../../backend/src/common/types';
+import { CreateUserDto, SecuredUser, UpdateUserDto } from '../../../../backend/src/common/types';
 
  
 

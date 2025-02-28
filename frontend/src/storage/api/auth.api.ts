@@ -1,14 +1,10 @@
 import { api } from './axios';
 
 import {
-
   LoginResponseDto,
-
   SignUpRequestDto,
-
   SignupResponseDto,
-
-} from '../../../backend/src/common/types';
+} from '../../../../backend/src/common/types';
 
  
 
@@ -40,7 +36,6 @@ export async function login(
 
     useJwtToken(response.data.access_token);
 
-    //save token to local storage
 
     localStorage.setItem('ttm-session', JSON.stringify(response.data));
 

@@ -8,15 +8,15 @@ const routes: RouteRecordRaw[] = [
 
     path: '/',
 
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('../../../frontend/src/storage/layout/MainLayout.vue'),
 
     children: [
 
-      { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: '', component: () => import('../../../frontend/src/storage/pages/IndexPage.vue') },
 
-      { path: 'users', component: () => import('pages/UsersPage.vue') },
+      { path: 'users', component: () => import('../../../frontend/src/storage/pages/UsersPage.vue') },
 
-      { path: 'users/:id', component: () => import('pages/UserEditPage.vue') },
+      { path: 'users/:id', component: () => import('../../../frontend/src/storage/pages/UserEditPage.vue') },
 
     ],
 
@@ -26,9 +26,9 @@ const routes: RouteRecordRaw[] = [
 
     path: '/login',
 
-    component: () => import('layouts/ServiceLayout.vue'),
+    component: () => import('../../../frontend/src/storage/layout/ServiceLayout.vue'),
 
-    children: [{ path: '', component: () => import('pages/LoginPage.vue') }],
+    children: [{ path: '', component: () => import('../../../frontend/src/storage/pages/LoginPage.vue') }],
 
   },
 
@@ -36,9 +36,9 @@ const routes: RouteRecordRaw[] = [
 
     path: '/signup',
 
-    component: () => import('layouts/ServiceLayout.vue'),
+    component: () => import('../../../frontend/src/storage/layout/ServiceLayout.vue'),
 
-    children: [{ path: '', component: () => import('pages/SignupPage.vue') }],
+    children: [{ path: '', component: () => import('../../../frontend/src/storage/pages/SignupPage.vue') }],
 
   },
 
@@ -50,7 +50,7 @@ const routes: RouteRecordRaw[] = [
 
     path: '/:catchAll(.*)*',
 
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('../../../frontend/src/storage/pages/ErrorNotFound.vue'),
 
   },
 
