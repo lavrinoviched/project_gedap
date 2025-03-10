@@ -60,7 +60,7 @@
   
   import { useQuasar } from 'quasar';
   
-  import * as api from 'src/api/auth.api';
+  import * as api from '../../../../frontend/src/storage/api/auth.api.ts';
   
   import { ref } from 'vue';
   

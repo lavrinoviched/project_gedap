@@ -52,7 +52,7 @@
   
   import * as api from '../api/auth.api';
   
-  import { useMainStore } from 'src/stores/main-store';
+  import { useMainStore } from '../../../../frontend/src/storage/main-store.ts';
   
   import { useQuasar } from 'quasar';
   

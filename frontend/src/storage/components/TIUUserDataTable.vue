@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 
-import { SecuredUser } from '../../../backend/src/common/types';
+import { SecuredUser } from '../../../../backend/src/common/types.ts';
 
  
 

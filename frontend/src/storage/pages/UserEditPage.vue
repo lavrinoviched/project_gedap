@@ -40,7 +40,7 @@
   
   import { Ref, onMounted, ref } from 'vue';
   
-  import { CreateUserDto, Role, UpdateUserDto, UserAccountStatus } from '../../../backend/src/common/types';
+  import { CreateUserDto, Role, UpdateUserDto, UserAccountStatus } from '../../../../backend/src/common/types.js';
   
   import { useRoute, useRouter } from 'vue-router';
   

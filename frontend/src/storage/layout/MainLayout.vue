@@ -60,9 +60,9 @@
   
   import { ref } from 'vue';
   
-  import SideMenu from 'components/SideMenu.vue'
+  import SideMenu from '../../../../frontend/src/storage/components/SideMenu.vue'
   
-  import { useMainStore } from 'src/stores/main-store';
+  import { useMainStore } from '../../../../frontend/src/storage/main-store.ts';
   
   import { storeToRefs } from 'pinia';
   

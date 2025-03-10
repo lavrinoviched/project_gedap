@@ -82,7 +82,7 @@
 
 <script lang="ts" setup>
 
-import { useMainStore } from 'src/stores/main-store';
+import { useMainStore } from '../../../../frontend/src/storage/main-store.ts';
 
  
 
