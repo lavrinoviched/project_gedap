@@ -6,7 +6,40 @@ export enum Role {
   
   }
   
-   
+  export enum UserCommandStatus {
+    inTeam = 'In the team',
+    expelled = 'Expelled',
+  }
+      
+  export enum StatusProject {
+    searchTeam = 'Search for team',
+    teamFound = 'Team found',
+  }
+      
+  export enum StatusIdea {
+    new = 'New',
+    underEditing = 'Under Editing',
+    underApproval = 'Under Approval',
+    approved = 'Approved',
+    published = 'Published',
+  }
+      
+  export enum StatusTeam {
+    searchProject = 'Search for a project',
+    inProgress = 'In progress',
+  }
+      
+  export enum PrivacyTeam {
+    open = 'Open',
+    close = 'Close',
+  }
+      
+  export enum Competence {
+    no = 'No',
+    html = 'HTML',
+    typescript = 'TypeScript',
+    postgresql = 'PostgeSQL',
+  }
   
   export enum UserAccountStatus {
   
@@ -19,6 +52,7 @@ export enum Role {
   }
   
   export interface LoginResponseDto {
+    userId: number;
   
     access_token: string;
   
@@ -58,7 +92,7 @@ export enum Role {
   
   export interface CreateUserDto {
   
-    name: string;
+    email: string;
   
     firstname: string;
   
@@ -82,7 +116,7 @@ export enum Role {
   
     id: number;
   
-    name: string;
+    email: string;
   
     firstname: string;
   
@@ -93,3 +127,34 @@ export enum Role {
     status: UserAccountStatus;
   
   };
+  export enum TaskStatus {
+
+    new = 'new',
+  
+    inProgress = 'inProgress',
+  
+    done = 'done',
+  
+  }
+  
+   
+  
+  export type TaskDto = {
+  
+    id: number;
+  
+    title: string;
+  
+    status: TaskStatus;
+  
+    createdAt: Date;
+  
+    author: SecuredUser;
+
+    assignee?: any;
+  
+  };
+  
+   
+  
+  export type CreateUpdateTaskDto = Omit<TaskDto, 'id' | 'createdAt' | 'author'>;
