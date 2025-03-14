@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "types": [
-      "webpack-env"
-    ],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,

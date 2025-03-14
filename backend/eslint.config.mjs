@@ -1,8 +1,10 @@
-// @ts-check
-import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import { ESLint } from '@eslint/js';
+import pluginPrettier from 'eslint-plugin-prettier';
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import { Linter } from '@typescript-eslint/parser';
+
+const eslint = new ESLint();
+const tseslint = new Linter();
 
 export default tseslint.config(
   {
@@ -10,7 +12,7 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
+  pluginPrettier.configs.recommended,
   {
     languageOptions: {
       globals: {
@@ -29,7 +31,7 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/no-unsafe-argument': 'warn',
     },
   },
 );
