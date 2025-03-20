@@ -1,15 +1,35 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';   
+
 import { User } from './user.entity';
+
+import { UserCommandStatus } from 'src/common/types'; 
+import { Team } from './team.entity';
 
 @Entity()
 export class Portfolio {
+
   @PrimaryGeneratedColumn()
   id: number;
+  
+  @CreateDateColumn()
+  entryDate: Date;
+  
+  @UpdateDateColumn()
+  exclusionDate: Date;
 
-  // Другие поля...
+  @Column({ default: UserCommandStatus.inTeam })
+  status: UserCommandStatus;
 
-  @ManyToOne(() => User, (user) => user.portfolio)
+  @ManyToOne(() => Team, (team) => team.id, { onDelete: 'CASCADE' })
+  team: Team;
+
+  @ManyToOne(() => User, (user) => user.portfolio, { onDelete: 'CASCADE' })
   user: User;
-
-  // Другие поля и методы
 }
