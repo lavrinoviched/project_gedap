@@ -12,12 +12,15 @@ import { Idea } from './orm/idea.entity';
 import { Portfolio } from './orm/portfolio.entity';
 import { Project } from './orm/project.entity';
 import { Comments } from './orm/comment.entity';
+import { ApplicationModule } from './application/application.module';
+import { Application } from './orm/application.entity';
  
 
 @Module({
 
   imports: [
 
+    ApplicationModule,
     AuthModule,
     UsersModule,
     ConfigModule.forRoot({
@@ -34,7 +37,7 @@ import { Comments } from './orm/comment.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         cache: true,
-        entities: [User, Team, Comments, Idea, Portfolio, Project],
+        entities: [User, Team, Comments, Idea, Portfolio, Project, Application],
         maxQueryExecutionTime: 5000,
         extra: {
           max: 50,
@@ -44,7 +47,7 @@ import { Comments } from './orm/comment.entity';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User, Team, Comments, Idea, Portfolio, Project]),
+    TypeOrmModule.forFeature([User, Team, Comments, Idea, Portfolio, Project, Application]),
   ],
   controllers: [AppController],
   providers: [AppService],
