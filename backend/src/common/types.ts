@@ -1,7 +1,7 @@
 export enum Role {
   admin = 'admin',
   user = 'user',
-  customer = 'customer', // Добавляем роль заказчика
+  customer = 'customer',
 }
 
 export enum UserCommandStatus {
@@ -45,6 +45,12 @@ export enum UserAccountStatus {
   inactive = 'inactive',
 }
 
+export enum TaskStatus {
+  new = 'new',
+  inProgress = 'inProgress',
+  done = 'done',
+}
+
 export interface LoginResponseDto {
   userId: number;
   access_token: string;
@@ -52,6 +58,7 @@ export interface LoginResponseDto {
   firstname: string;
   lastname: string;
   roles: Role[];
+  avatarPath?: string;
 }
 
 export interface SignUpRequestDto {
@@ -72,9 +79,24 @@ export interface CreateUserDto {
   password: string;
   roles: Role[];
   status: UserAccountStatus;
+  avatarPath?: string;
+  experience?: {
+    years: number;
+    projectsCompleted: number;
+    technologies?: string[];
+  };
+  skills?: string[];
+  personalQualities?: {
+    communication: number;
+    teamwork: number;
+    leadership: number;
+    reliability: number;
+  };
 }
 
-export type UpdateUserDto = Omit<CreateUserDto, 'password'>;
+export type UpdateUserDto = Omit<CreateUserDto, 'password'> & {
+  id: number;
+};
 
 export type SecuredUser = {
   id: number;
@@ -83,13 +105,22 @@ export type SecuredUser = {
   lastname: string;
   roles: Role[];
   status: UserAccountStatus;
+  avatarPath?: string;
+  experience?: {
+    years: number;
+    projectsCompleted: number;
+    technologies?: string[];
+  };
+  skills?: string[];
+  personalQualities?: {
+    communication: number;
+    teamwork: number;
+    leadership: number;
+    reliability: number;
+  };
+  group?: string;
+  telephone?: string;
 };
-
-export enum TaskStatus {
-  new = 'new',
-  inProgress = 'inProgress',
-  done = 'done',
-}
 
 export type TaskDto = {
   id: number;
@@ -97,7 +128,27 @@ export type TaskDto = {
   status: TaskStatus;
   createdAt: Date;
   author: SecuredUser;
-  assignee?: any;
+  assignee?: SecuredUser;
 };
 
-export type CreateUpdateTaskDto = Omit<TaskDto, 'id' | 'createdAt' | 'author'>;
+export type CreateUpdateTaskDto = Omit<TaskDto, 'id' | 'createdAt' | 'author'> & {
+  authorId: number;
+  assigneeId?: number;
+};
+
+export type UpdateProfileDto = {
+  email?: string;
+  firstname?: string;
+  lastname?: string;
+  telephone?: string;
+  group?: string;
+  avatarPath?: string;
+  yearsOfExperience?: number;
+  projectsCompleted?: number;
+  technologies?: string[];
+  skills?: string[];
+  communicationSkill?: number;
+  teamworkSkill?: number;
+  leadershipSkill?: number;
+  reliabilitySkill?: number;
+};

@@ -1,19 +1,32 @@
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { 
+    IsString, 
+    IsNotEmpty, 
+    Matches, 
+    IsEmail, 
+    Length 
+} from 'class-validator';
+import { IsValidFullName } from '../common/decorators/is-strong-password.decorator';
 
 export class CreateApplicationDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
+    @IsValidFullName()
+    @IsString()
+    @IsNotEmpty()
+    fullName: string;
 
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+    @Matches(/^\+?\d{10,15}$/, {
+        message: 'Телефон должен содержать 10-15 цифр, можно с + в начале'
+    })
+    phone: string;
 
-  @IsPhoneNumber()
-  @IsNotEmpty()
-  phone: string;
+    @IsEmail({}, {
+        message: 'Неверный формат email'
+    })
+    email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  message: string;
+    @Length(10, 1000, {
+        message: 'Комментарий должен содержать от 10 до 1000 символов'
+    })
+    @IsString()
+    comment: string;
+    
 }

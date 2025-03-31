@@ -15,6 +15,8 @@ import { Comments } from './orm/comment.entity';
 import { ApplicationModule } from './application/application.module';
 import { Application } from './orm/application.entity';
  
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Module({
 
@@ -26,6 +28,17 @@ import { Application } from './orm/application.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    
+    MulterModule.register({
+      storage: diskStorage({
+          destination: './uploads/avatars',
+          filename: (req, file, cb) => {
+              const uniqueName = `${Date.now()}-${file.originalname}`;
+              cb(null, uniqueName);
+          },
+      }),
+  }),
+    
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

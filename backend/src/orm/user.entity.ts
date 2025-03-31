@@ -7,9 +7,8 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-
 import { Team } from './team.entity';
-import { Role, UserAccountStatus, SecuredUser, Competence } from 'src/common/types';
+import { Role, UserAccountStatus, SecuredUser } from 'src/common/types';
 import { Idea } from './idea.entity';
 import { Portfolio } from './portfolio.entity';
 import { Comments } from './comment.entity';
@@ -38,18 +37,36 @@ export class User {
   @Column({ default: '' })
   telephone: string;
 
+  // Авторизация и роли
   @Column({ type: 'varchar', default: [Role.user], array: true })
   roles: Role[];
 
   @Column({ default: UserAccountStatus.pending })
   status: UserAccountStatus;
 
-  @Column({ type: 'varchar', array: true, default: '{}' })
-  competence: Competence[];
+  // Профиль и компетенции
+  @Column({ nullable: true })
+  avatarPath?: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
+  @Column('simple-json', { nullable: true })
+  experience?: {
+    years: number;
+    projectsCompleted: number;
+    technologies?: string[];
+  };
 
+  @Column('simple-array', { nullable: true })
+  skills?: string[];
+
+  @Column('simple-json', { nullable: true })
+  personalQualities?: {
+    communication: number;
+    teamwork: number;
+    leadership: number;
+    reliability: number;
+  };
+
+  // Связи с другими сущностями
   @OneToOne(() => Team, (team) => team.user_leader)
   team_leader: Team;
 
@@ -77,6 +94,9 @@ export class User {
   @ManyToOne(() => Team, (team) => team.user, { eager: true, onDelete: 'SET NULL' })
   team: Team;
 
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
   getSecuredDto(): SecuredUser {
     return {
       id: this.id,
@@ -85,6 +105,10 @@ export class User {
       lastname: this.lastname,
       roles: this.roles,
       status: this.status,
+      avatarPath: this.avatarPath,
+      experience: this.experience,
+      skills: this.skills,
+      personalQualities: this.personalQualities
     };
   }
 }
