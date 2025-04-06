@@ -1,3 +1,5 @@
+import { Technology } from "src/orm/technology.entity";
+
 export enum Role {
   admin = 'admin',
   user = 'user',
@@ -112,6 +114,7 @@ export type SecuredUser = {
     technologies?: string[];
   };
   skills?: string[];
+  technologies?: Technology[];
   personalQualities?: {
     communication: number;
     teamwork: number;

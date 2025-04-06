@@ -6,6 +6,8 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Team } from './team.entity';
 import { Role, UserAccountStatus, SecuredUser } from 'src/common/types';
@@ -13,6 +15,7 @@ import { Idea } from './idea.entity';
 import { Portfolio } from './portfolio.entity';
 import { Comments } from './comment.entity';
 import { Project } from './project.entity';
+import { Technology } from './technology.entity'; 
 
 @Entity()
 export class User {
@@ -52,11 +55,17 @@ export class User {
   experience?: {
     years: number;
     projectsCompleted: number;
-    technologies?: string[];
   };
 
-  @Column('simple-array', { nullable: true })
-  skills?: string[];
+
+  @ManyToMany(() => Technology, { eager: true }) 
+  @JoinTable({
+    name: 'user_technologies', 
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'technology_id', referencedColumnName: 'id' }
+  })
+  technologies: Technology[];
+
 
   @Column('simple-json', { nullable: true })
   personalQualities?: {
@@ -107,7 +116,7 @@ export class User {
       status: this.status,
       avatarPath: this.avatarPath,
       experience: this.experience,
-      skills: this.skills,
+      technologies: this.technologies, 
       personalQualities: this.personalQualities
     };
   }
