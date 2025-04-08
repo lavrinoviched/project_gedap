@@ -1,4 +1,4 @@
-import { Technology } from "src/orm/technology.entity";
+
 
 export enum Role {
   admin = 'admin',
@@ -100,6 +100,73 @@ export type UpdateUserDto = Omit<CreateUserDto, 'password'> & {
   id: number;
 };
 
+export enum TechnologyName {
+  HTML = 'HTML',
+  CSS = 'CSS',
+  JavaScript = 'JavaScript',
+  TypeScript = 'TypeScript',
+  Python = 'Python',
+  Java = 'Java',
+  CSharp = 'C#',
+  CPlusPlus = 'C++',
+  PHP = 'PHP',
+  GOLANG = 'GOLANG',
+  Rust = 'Rust',
+  Dart = 'Dart',
+  RLang = 'R Lang',
+  KOTLIN = 'KOTLIN',
+  SWIFT = 'SWIFT',
+  Julia = 'Julia',
+  XAML = 'XAML',
+  NodeJs = 'Node.js',
+  React = 'React',
+  ReactJS = 'ReactJS',
+  Vue = 'Vue',
+  NextJs = 'Next.js',
+  Next = 'Next',
+  SpringBoot = 'SpringBoot',
+  Flutter = 'Flutter',
+  Django = 'Django',
+  FastAPI = 'FastAPI',
+  NestJS = 'NestJS',
+  DotNet6 = '.NET 6.0',
+  DotNetMaui = '.NET MAUI',
+  UnrealEngine = 'Unreal Engine',
+  Blueprint = 'Blueprint',
+  MongoDB = 'MongoDB',
+  SQL = 'SQL',
+  PostgreSQL = 'PostgreSQL',
+  MySQL = 'MySQL',
+  SQLite = 'SQLite',
+  FireBase = 'FireBase',
+  Redis = 'Redis',
+  Elasticsearch = 'Elasticsearch',
+  Git = 'Git',
+  Docker = 'Docker',
+  Prometheus = 'Prometheus',
+  Grafana = 'Grafana',
+  TensorFlow = 'TensorFlow',
+  PyTorch = 'PyTorch',
+  Keras = 'Keras',
+  ScikitLearn = 'Scikit Learn',
+  Pandas = 'Pandas',
+  OneC = '1c',
+  AndroidSDK = 'Android SDK',
+  Figma = 'Figma',
+  Photoshop = 'Photoshop',
+  Selenium = 'Selenium',
+  Jest = 'Jest',
+  Jupyter = 'Jupyter'
+}
+
+// Добавляем интерфейс Technology
+export interface Technology {
+  id: number;
+  name: TechnologyName;
+  iconUrl?: string;
+  users?: Role[]; // Зависит от того, как у вас определен User в types.ts
+}
+
 export type SecuredUser = {
   id: number;
   email: string;
@@ -111,10 +178,10 @@ export type SecuredUser = {
   experience?: {
     years: number;
     projectsCompleted: number;
-    technologies?: string[];
+    technologies?: TechnologyName[]; // Изменено с string[] на TechnologyName[]
   };
   skills?: string[];
-  technologies?: Technology[];
+  technologies?: Technology[]; // Оставлено как есть, но теперь Technology - это интерфейс
   personalQualities?: {
     communication: number;
     teamwork: number;
