@@ -10,22 +10,77 @@ export class ProjectsController {
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
-  @ApiQuery({ name: 'title', required: false })
-  @ApiQuery({ name: 'initiator', required: false })
-  @ApiQuery({ name: 'techStack', required: false })
-  @ApiQuery({ name: 'ideaStatus', required: false })
-  @ApiQuery({ name: 'teamSizeFrom', required: false })
-  @ApiQuery({ name: 'teamSizeTo', required: false })
-  @ApiQuery({ name: 'rewardFrom', required: false })
-  @ApiQuery({ name: 'rewardTo', required: false })
-  @ApiQuery({ name: 'category', required: false })
-  @ApiQuery({ name: 'difficulty', required: false })
-  @ApiQuery({ name: 'deadlineFrom', required: false })
-  @ApiQuery({ name: 'deadlineTo', required: false })
-  @ApiQuery({ name: 'rewardType', required: false })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiResponse({ status: 200, description: 'Filtered projects list' })
+  @ApiQuery({ name: 'title', required: false, description: 'Название проекта' })
+  @ApiQuery({ 
+    name: 'initiator', 
+    required: false, 
+    enum: ['Все', 'Сотрудник вуза', 'Партнер вуза'],
+    description: 'Тип инициатора проекта'
+  })
+  @ApiQuery({ 
+    name: 'techStack', 
+    required: false, 
+    description: 'Технологии (через запятую)' 
+  })
+  @ApiQuery({ 
+    name: 'ideaStatus', 
+    required: false, 
+    enum: ['Все', 'Открыта', 'В работе', 'Завершена'],
+    description: 'Статус идеи'
+  })
+  @ApiQuery({ 
+    name: 'teamSize', 
+    required: false, 
+    enum: ['Все', '1-2 человека', '2-3 человека', '3-4 человека', '4-5 человек'],
+    description: 'Размер команды'
+  })
+  @ApiQuery({ 
+    name: 'hasReward', 
+    required: false, 
+    enum: ['Все', 'Практика в организации', 'Денежная', 'Сертификат', 'Приглашение на работу'],
+    description: 'Наличие вознаграждения'
+  })
+  @ApiQuery({ 
+    name: 'category', 
+    required: false, 
+    enum: ['Все', 'Программирование', 'Аналитика', 'Дизайн', 'Документирование', 'Тестирование', 'Обучение'],
+    description: 'Категория проекта'
+  })
+  @ApiQuery({ 
+    name: 'complexity', 
+    required: false, 
+    enum: ['Все', 'Низкая', 'Средняя', 'Высокая'],
+    description: 'Сложность проекта'
+  })
+  @ApiQuery({ 
+    name: 'rewardType', 
+    required: false, 
+    enum: ['Все', 'Денежная', 'Сертификат', 'Рекомендация', 'Благодарность'],
+    description: 'Тип вознаграждения'
+  })
+  @ApiQuery({ 
+    name: 'deadlineFrom', 
+    required: false, 
+    description: 'Минимальная дата дедлайна (YYYY-MM-DD)' 
+  })
+  @ApiQuery({ 
+    name: 'deadlineTo', 
+    required: false, 
+    description: 'Максимальная дата дедлайна (YYYY-MM-DD)' 
+  })
+  @ApiQuery({ 
+    name: 'page', 
+    required: false, 
+    type: Number,
+    description: 'Номер страницы (по умолчанию 1)' 
+  })
+  @ApiQuery({ 
+    name: 'limit', 
+    required: false, 
+    type: Number,
+    description: 'Лимит проектов на странице (по умолчанию 10)' 
+  })
+  @ApiResponse({ status: 200, description: 'Отфильтрованный список проектов' })
   async findAll(@Query() filterDto: ProjectFilterDto) {
     return this.projectsService.findAllWithFilters(filterDto);
   }

@@ -18,10 +18,13 @@ import { Application } from './orm/application.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 
+import { AdminModule } from './admin/admin.module';
+
 @Module({
 
   imports: [
 
+    AdminModule,
     ApplicationModule,
     AuthModule,
     UsersModule,

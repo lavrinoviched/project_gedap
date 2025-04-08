@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Application {
@@ -8,18 +8,19 @@ export class Application {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  phone?: string;
+
   @Column()
   email: string;
 
-  @Column()
-  phone: string;
-
-  @Column()
-  message: string;
+  @Column({ type: 'text', nullable: true })
+  comment?: string;
 
   @Column({ default: 'pending' })
-  status: string; // pending, approved, rejected
+  status: 'pending' | 'approved' | 'rejected';
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+    adminComment: string | null;
 }

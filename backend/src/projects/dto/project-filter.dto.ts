@@ -2,14 +2,13 @@ import { IsOptional, IsString, Min, Max, IsNumber, IsDateString, IsArray } from 
 import { Transform } from 'class-transformer';
 
 export class ProjectFilterDto {
-  
   @IsOptional()
   @IsString()
   title?: string;
 
   @IsOptional()
   @IsString()
-  initiator?: string;
+  initiator?: 'Все' | 'Сотрудник вуза' | 'Партнер вуза';
 
   @IsOptional()
   @IsArray()
@@ -18,31 +17,27 @@ export class ProjectFilterDto {
 
   @IsOptional()
   @IsString()
-  ideaStatus?: string;
-
-  @IsOptional()
-  @IsNumber()
-  teamSizeFrom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  teamSizeTo?: number;
-
-  @IsOptional()
-  @IsNumber()
-  rewardFrom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  rewardTo?: number;
+  status?: 'Все' | 'Открыта' | 'В работе' | 'Завершена';
 
   @IsOptional()
   @IsString()
-  category?: string;
+  teamSize?: 'Все' | '1-2 человека' | '2-3 человека' | '3-4 человека' | '4-5 человек';
 
   @IsOptional()
   @IsString()
-  difficulty?: string;
+  hasReward?: 'Все' | 'Практика в организации' | 'Денежная' | 'Сертификат' | 'Приглашение на работу';
+
+  @IsOptional()
+  @IsString()
+  category?: 'Все' | 'Программирование' | 'Аналитика' | 'Дизайн' | 'Документирование' | 'Тестирование' | 'Обучение';
+
+  @IsOptional()
+  @IsString()
+  complexity?: 'Все' | 'Низкая' | 'Средняя' | 'Высокая';
+
+  @IsOptional()
+  @IsString()
+  rewardType?: 'Все' | 'Денежная' | 'Сертификат' | 'Рекомендация' | 'Благодарность';
 
   @IsOptional()
   @IsDateString()
@@ -51,10 +46,6 @@ export class ProjectFilterDto {
   @IsOptional()
   @IsDateString()
   deadlineTo?: string;
-
-  @IsOptional()
-  @IsString()
-  rewardType?: string;
 
   @IsOptional()
   @IsNumber()

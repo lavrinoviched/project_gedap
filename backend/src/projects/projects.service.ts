@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Like, In } from 'typeorm';
+import { Repository, Between, Like, In, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Project } from './project.entity';
 import { ProjectFilterDto } from './dto/project-filter.dto';
 
@@ -12,50 +12,49 @@ export class ProjectsService {
   ) {}
 
   async findAllWithFilters(filterDto: ProjectFilterDto) {
-    // Добавляем значения по умолчанию для пагинации
-    const page = filterDto.page ?? 1; // Если undefined, то 1
-    const limit = filterDto.limit ?? 10; // Если undefined, то 10
+    const page = filterDto.page ?? 1;
+    const limit = filterDto.limit ?? 10;
 
     const {
       title,
       initiator,
       techStack,
-      ideaStatus,
-      teamSizeFrom,
-      teamSizeTo,
-      rewardFrom,
-      rewardTo,
+      status,
+      teamSize,
       category,
-      difficulty,
+      complexity,
+      rewardType,
       deadlineFrom,
       deadlineTo,
-      rewardType
+      hasReward,
     } = filterDto;
 
     const where: any = {};
 
+    // Текстовые фильтры
     if (title) where.title = Like(`%${title}%`);
     if (initiator) where.initiator = Like(`%${initiator}%`);
-    if (techStack) where.techStack = In(techStack);
-    if (ideaStatus) where.ideaStatus = ideaStatus;
+    if (status) where.status = status;
     if (category) where.category = category;
-    if (difficulty) where.difficulty = difficulty;
-    if (rewardType) where.rewardType = rewardType;
+    if (complexity) where.complexity = complexity;
 
-    if (teamSizeFrom || teamSizeTo) {
-      where.teamSize = Between(
-        teamSizeFrom ?? 1,  // Используем ?? вместо ||
-        teamSizeTo ?? 100
-      );
+    // Фильтр по технологиям
+    if (techStack) {
+      where.technologies = In(techStack);
     }
 
-    if (rewardFrom || rewardTo) {
-      where.reward = Between(
-        rewardFrom ?? 0,
-        rewardTo ?? Number.MAX_SAFE_INTEGER
-      );
+    // Фильтр по наличию вознаграждения
+    if (hasReward !== undefined) {
+      where.hasReward = hasReward;
     }
 
+    // Фильтр по размеру команды
+    if (teamSize) {
+      where.teamSize = teamSize;
+    }
+
+   
+    // Фильтр по датам
     if (deadlineFrom || deadlineTo) {
       where.deadline = Between(
         deadlineFrom ? new Date(deadlineFrom) : new Date(0),
@@ -65,19 +64,22 @@ export class ProjectsService {
 
     const skip = (page - 1) * limit;
     
-    // Добавляем обработку ошибок
     try {
       const [projects, total] = await Promise.all([
         this.projectRepository.find({
           where,
           skip,
           take: limit,
+          order: { deadline: 'ASC' } // Сортировка по сроку выполнения
         }),
         this.projectRepository.count({ where }),
       ]);
 
       return {
-        data: projects,
+        data: projects.map(project => ({
+          ...project,
+          deadline: project.deadline.toISOString().split('T')[0] // Форматирование даты
+        })),
         meta: {
           total,
           page,

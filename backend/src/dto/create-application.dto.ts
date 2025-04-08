@@ -11,7 +11,7 @@ export class CreateApplicationDto {
     @IsValidFullName()
     @IsString()
     @IsNotEmpty()
-    fullName: string;
+    name: string;
 
     @Matches(/^\+?\d{10,15}$/, {
         message: 'Телефон должен содержать 10-15 цифр, можно с + в начале'

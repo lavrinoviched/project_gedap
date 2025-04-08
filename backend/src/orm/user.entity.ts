@@ -65,6 +65,7 @@ export class User {
     inverseJoinColumn: { name: 'technology_id', referencedColumnName: 'id' }
   })
   technologies: Technology[];
+  
 
 
   @Column('simple-json', { nullable: true })
