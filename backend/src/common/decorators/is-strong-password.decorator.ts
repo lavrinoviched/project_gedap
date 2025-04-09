@@ -41,7 +41,7 @@ export function IsValidApplication(validationOptions?: ValidationOptions) {
                 validate(value: any, args: ValidationArguments) {
                     const dto = args.object as CreateApplicationDto;
                     
-                    const nameValid = new IsValidFullNameConstraint().validate(dto.fullName, args);
+                    const nameValid = new IsValidFullNameConstraint().validate(dto.name, args);
                     const phoneValid = /^\+?\d{10,15}$/.test(dto.phone);
                     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dto.email);
                     const commentValid = dto.comment?.length >= 10;
@@ -52,7 +52,7 @@ export function IsValidApplication(validationOptions?: ValidationOptions) {
                     const dto = args.object as CreateApplicationDto;
                     const errors: string[] = [];
                     
-                    if (!new IsValidFullNameConstraint().validate(dto.fullName, args)) {
+                    if (!new IsValidFullNameConstraint().validate(dto.name, args)) {
                         errors.push('ФИО: требуется три слова по 2+ символа (кириллица/латиница)');
                     }
                     

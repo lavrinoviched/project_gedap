@@ -6,16 +6,13 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import { Team } from './team.entity';
-import { Role, UserAccountStatus, SecuredUser } from 'src/common/types';
+import { Role, UserAccountStatus, SecuredUser, Technology, TechnologyName } from 'src/common/types';
 import { Idea } from './idea.entity';
 import { Portfolio } from './portfolio.entity';
 import { Comments } from './comment.entity';
 import { Project } from './project.entity';
-import { Technology } from './technology.entity'; 
 
 @Entity()
 export class User {
@@ -51,22 +48,17 @@ export class User {
   @Column({ nullable: true })
   avatarPath?: string;
 
+
   @Column('simple-json', { nullable: true })
   experience?: {
     years: number;
     projectsCompleted: number;
+    technologies?: TechnologyName[]; // Add technologies here
   };
 
 
-  @ManyToMany(() => Technology, { eager: true }) 
-  @JoinTable({
-    name: 'user_technologies', 
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'technology_id', referencedColumnName: 'id' }
-  })
-  technologies: Technology[];
-  
-
+  @Column('simple-json', { nullable: true })
+  technologies?: Technology[]; // Store as JSON array
 
   @Column('simple-json', { nullable: true })
   personalQualities?: {
@@ -75,6 +67,9 @@ export class User {
     leadership: number;
     reliability: number;
   };
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
 
   // Связи с другими сущностями
   @OneToOne(() => Team, (team) => team.user_leader)
@@ -104,9 +99,6 @@ export class User {
   @ManyToOne(() => Team, (team) => team.user, { eager: true, onDelete: 'SET NULL' })
   team: Team;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
   getSecuredDto(): SecuredUser {
     return {
       id: this.id,
@@ -117,8 +109,10 @@ export class User {
       status: this.status,
       avatarPath: this.avatarPath,
       experience: this.experience,
-      technologies: this.technologies, 
-      personalQualities: this.personalQualities
+      technologies: this.technologies,
+      personalQualities: this.personalQualities,
+      group: this.group,
+      telephone: this.telephone
     };
   }
 }
