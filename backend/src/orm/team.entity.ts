@@ -30,7 +30,7 @@ export class Team {
   @Column({ default: PrivacyTeam.open})
   privacy: PrivacyTeam;
 
-  @Column({ default: StatusTeam.recruiting })
+  @Column({ default: StatusTeam.searchProject })
   status: StatusTeam;
   
   @CreateDateColumn({ name: 'created_at' })
@@ -47,7 +47,7 @@ export class Team {
   portfolio: Portfolio[];
 
   @ManyToOne(() => Project, (project) => project.teams, { onDelete: 'SET NULL' })
-  project: Project | null;
+  project: Project;
 
   @ManyToOne(() => User, (user) => user.team_owner, { onDelete: 'CASCADE' })
   user_owner: User;
