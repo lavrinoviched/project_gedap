@@ -9,7 +9,7 @@
         <div class="q-mt-lg">
           <q-btn 
             color="primary" 
-            label="СОЗДАТЬ ЗАДАЧУ" 
+            label="Предложить идею проекта" 
             class="custom-btn" 
             @click="onNewClick"
           />
@@ -26,6 +26,8 @@
         <div v-for="i in 12" :key="i" :class="`balloon balloon${i}`"></div>
       </div>
     </section>
+
+    
 
     <!-- How It Works Section -->
     <section 
@@ -271,9 +273,9 @@
 import { useQuasar } from 'quasar';
 import TaskEditForm from '../components/TaskEditForm.vue';
 import { computed, onMounted, ref } from 'vue';
+import { api } from 'boot/axios';
 
 const $q = useQuasar();
-
 
 interface Task {
   id: number;
@@ -296,12 +298,56 @@ interface Step {
   hovered: boolean;
 }
 
+// Опции для селектов
+const categoryOptions = ['Программирование', 'Аналитика', 'Дизайн', 'Документирование', 'Тестирование', 'Обучение'];
+const complexityOptions = ['Низкая', 'Средняя', 'Высокая'];
+const rewardOptions = ['Сертификат', 'Практика', 'Денежная', 'Благодарность'];
+const teamSizeOptions = ['1-2 человека', '2-3 человека', '3-4 человека', '4-5 человек'];
+const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'Flatter', 'Dart', 'R Lang', 'Java', 'Javascript','HTML', 'CSS', 'C++', 
+'Next', 'Julia', 'TypeScript', 'Python', 'SWIFT', 'KOTLIN', 'XAML', 'C#' ,'Scss', 'Ruby', 'React', 'Unreal Engine GameMode', 'SpringBoot',
+'Keras','Scikit Learn','Pandas','TensorFlow',
+'PyTorch','Vue','PhalconPHP','FastAPI','Flutter','1с','ReactJS','NestJS','Node.js','Next.js','.NET MAUI','.NET 6.0','Django',
+'Unreal Engine','Flutter','NumPy','ReactNative','Flask','Tailwind','Bootstrap','Ruby on Rails','Jest','Mocha','Cypress','Selenium',
+
+'SQLite','SQL','FireBase','Redis','MySQL','TypeORM','SQL1','PostgreSQL','MongoDB'
+];
+
+// Реактивные данные формы
+const newTaskForm = ref({
+  title: '',
+  category: '',
+  description: '',
+  initiator: '',
+  technologies: [] as string[],
+  deadline: '',
+  teamSize: '',
+  hasReward: false,
+  reward: '',
+  complexity: 'Средняя'
+});
+
 // Реактивные данные
 const searchText = ref('');
 const isHowItWorksVisible = ref(false);
 const isTasksVisible = ref(false);
 const isBecomeCustomerVisible = ref(false);
 const showFilters = ref(false);
+
+// Опции фильтров
+const selectedInitiator = ref<string | null>(null);
+const selectedStack = ref<string[]>([]);
+const selectedStatus = ref<string | null>(null);
+const selectedTeamSize = ref<string | null>(null);
+const selectedHasReward = ref<string | null>(null);
+const selectedCategory = ref<string | null>(null);
+const selectedComplexity = ref<string | null>(null);
+const selectedReward = ref<string | null>(null);
+const deadlineFrom = ref<string | null>(null);
+
+const initiatorOptions = ['Все', 'Сотрудник вуза', 'Партнер вуза'];
+const statusOptions = ['Все', 'Открыта', 'В работе', 'Завершена'];
+const hasRewardOptions = ['Все', ...rewardOptions, 'Рекомендация'];
+
 
 // Данные шагов
 const steps = ref<Step[]>([
@@ -443,43 +489,66 @@ const tasks = ref<Task[]>([
   }
 ]);
 
-// Опции фильтров
-const selectedInitiator = ref<string | null>(null);
-const selectedStack = ref<string[]>([]);
-const selectedStatus = ref<string | null>(null);
-const selectedTeamSize = ref<string | null>(null);
-const selectedHasReward = ref<string | null>(null);
-const selectedCategory = ref<string | null>(null);
-const selectedComplexity = ref<string | null>(null);
-const selectedReward = ref<string | null>(null);
-const deadlineFrom = ref<string | null>(null);
+// Метод для отправки формы с использованием api
+const submitTask = async () => {
+  try {
+    $q.loading.show();
+    
+    // Используем api для отправки данных
+    const response = await api.post('/api/tasks', newTaskForm.value);
+    console.log('Ответ сервера:', response.data);
+    
+    $q.notify({
+      message: 'Идея проекта успешно отправлена!',
+      color: 'positive',
+      icon: 'check_circle'
+    });
+    
+    // Добавляем новую задачу в список
+    tasks.value.unshift({
+      ...newTaskForm.value,
+      id: Math.max(...tasks.value.map(t => t.id)) + 1,
+      status: 'Открыта'
+    });
+    
+    // Сбрасываем форму
+    newTaskForm.value = {
+      title: '',
+      category: '',
+      description: '',
+      initiator: '',
+      technologies: [],
+      deadline: '',
+      teamSize: '',
+      hasReward: false,
+      reward: '',
+      complexity: 'Средняя'
+    };
+    
+  } catch (error) {
+    console.error('Ошибка при отправке идеи:', error);
+    $q.notify({
+      message: 'Произошла ошибка при отправке идеи',
+      color: 'negative',
+      icon: 'error'
+    });
+  } finally {
+    $q.loading.hide();
+  }
+};
 
-const initiatorOptions = ['Все', 'Сотрудник вуза', 'Партнер вуза'];
-const statusOptions = ['Все', 'Открыта', 'В работе', 'Завершена'];
-const teamSizeOptions = ['Все', '1-2 человека', '2-3 человека', '3-4 человека', '4-5 человек'];
-const hasRewardOptions = ['Все', 'Практика в организации', 'Денежная', 'Сертификат', 'Рекомендация'];
-const categoryOptions = ['Все', 'Программирование', 'Аналитика', 'Дизайн', 'Документирование', 'Тестирование', 'Обучение'];
-const complexityOptions = ['Все', 'Низкая', 'Средняя', 'Высокая'];
-
-
-const stackOptions = [
-  'HTML', 'CSS', 'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'C++', 
-  'PHP', 'GOLANG', 'Rust', 'Dart', 'R Lang', 'KOTLIN', 'SWIFT', 'Julia', 'XAML',
-  'Node.js', 'React', 'ReactJS', 'Vue', 'Next.js', 'Next', 'SpringBoot', 'Flutter',
-  'Django', 'FastAPI', 'NestJS', '.NET 6.0', '.NET MAUI', 'Unreal Engine', 'Blueprint',
-  'MongoDB', 'SQL', 'PostgreSQL', 'MySQL', 'SQLite', 'FireBase', 'Redis', 'Elasticsearch',
-  'Git', 'Docker', 'Prometheus', 'Grafana', 'TensorFlow', 'PyTorch', 'Keras', 'Scikit Learn',
-  'Pandas', '1c', 'Android SDK', 'Figma', 'Photoshop', 'Selenium', 'Jest', 'Jupyter'
-];
-
-// Методы
 const onNewClick = async () => {
   $q.dialog({
     component: TaskEditForm,
-    componentProps: { new: true },
+    componentProps: { 
+      new: true,
+      formData: newTaskForm.value,
+      onSubmit: submitTask
+    },
   });
 };
 
+// Остальные методы остаются без изменений
 const scrollToHowItWorks = () => {
   const element = document.getElementById('how-it-works');
   if (element) {

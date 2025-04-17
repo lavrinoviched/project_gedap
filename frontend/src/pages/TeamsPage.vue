@@ -884,7 +884,7 @@ const teamForm = ref({
     leadersDetails: [
       {
         id: 602,
-        name: 'Максим Лесной',
+        name: 'Максим Фетюков',
         email: 'm.lesnoy@university.ru',
         role: 'Tech Lead',
         avatar: 'https://randomuser.me/api/portraits/men/70.jpg',
@@ -893,7 +893,7 @@ const teamForm = ref({
       },
       {
         id: 603,
-        name: 'Евгения Речная',
+        name: 'Екатерина Гриб',
         email: 'e.rechnaya@university.ru',
         role: 'Product Manager',
         avatar: 'https://randomuser.me/api/portraits/women/42.jpg',

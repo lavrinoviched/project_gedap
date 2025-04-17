@@ -1,59 +1,69 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin" style="min-width: 400px">
+    <q-card class="q-dialog-plugin" style="min-width: 500px">
       <q-card-section>
-        <div class="text-h6 text-center">
-          {{ props.new ? 'Новая задача' : 'Редактирование задачи' }}
+        <div class="text-h4 text-center text-weight-bold q-mb-md">
+          {{ props.new ? 'Новая идея проекта' : 'Редактирование идеи' }}
         </div>
       </q-card-section>
 
       <q-card-section class="q-gutter-md">
         <q-input
-          v-model="taskData.title"
-          label="Название задачи"
+          v-model="ideaData.title"
+          label="Название идеи*"
           dense
           outlined
           :rules="[(val) => !!val || 'Обязательное поле']"
         />
 
         <q-select
-          v-model="taskData.status"
-          :options="statusOptions"
-          label="Статус"
-          emit-value
-          map-options
+          v-model="ideaData.category"
+          :options="categoryOptions"
+          label="Категория*"
+          outlined
+          dense
+          :rules="[(val) => !!val || 'Выберите категорию']"
+        />
+
+        <q-select
+          v-model="ideaData.complexity"
+          :options="complexityOptions"
+          label="Сложность*"
           outlined
           dense
         />
 
         <q-select
-          v-model="taskData.assigneeId"
-          :options="filteredUsers"
-          label="Исполнитель"
-          option-value="id"
-          :option-label="getUserLabel"
+          v-model="ideaData.technologies"
+          :options="stackOptions"
+          label="Технологии"
           outlined
           dense
-          use-input
-          clearable
-          @filter="filterUsers"
-          :display-value="getAssigneeDisplay"
-        >
-          <template v-if="!taskData.assigneeId" v-slot:selected>
-            <div class="text-grey">Не назначен</div>
-          </template>
-        </q-select>
+          multiple
+          use-chips
+        />
+
+        <q-input
+          v-model="ideaData.deadline"
+          label="Срок выполнения"
+          type="date"
+          outlined
+          dense
+        />
+
+        <q-input
+          v-model="ideaData.description"
+          label="Подробное описание*"
+          type="textarea"
+          outlined
+          dense
+          :rules="[(val) => !!val || 'Обязательное поле']"
+          rows="3"
+        />
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-pb-md">
         <q-btn flat label="Отмена" color="primary" @click="onDialogCancel" />
-        <q-btn
-          v-if="!props.new"
-          flat
-          label="Удалить"
-          color="negative"
-          @click="onDelete"
-        />
         <q-btn
           label="Сохранить"
           color="primary"
@@ -66,113 +76,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
-import {
-  CreateUpdateTaskDto,
-  SecuredUser,
-  TaskDto,
-  TaskStatus,
-} from '../../../backend/src/common/types';
-import * as api from '../api/tasks.api';
-import * as userApi from '../api/users.api';
-import { useMainStore } from 'src/stores/main-store';
+
+interface IdeaFormData {
+  title: string;
+  category: string;
+  complexity: string;
+  technologies: string[];
+  deadline: string;
+  description: string;
+}
 
 interface TaskEditProps {
   new: boolean;
-  task?: TaskDto;
+  formData: IdeaFormData;
+  onSubmit: () => Promise<void>;
 }
 
 const props = defineProps<TaskEditProps>();
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = 
   useDialogPluginComponent();
 
-const mainStore = useMainStore();
 const loading = ref(false);
-const users = ref<SecuredUser[]>([]);
-const userFilter = ref('');
 
-const taskData = ref<CreateUpdateTaskDto>({
-  title: props.task?.title || '',
-  status: props.task?.status || TaskStatus.new,
-  assigneeId: props.task?.assignee?.id,
-  authorId: mainStore.userId,
+// Инициализация формы с переданными данными или значениями по умолчанию
+const ideaData = ref<IdeaFormData>({
+  title: props.formData?.title || '',
+  category: props.formData?.category || '',
+  complexity: props.formData?.complexity || 'Средняя',
+  technologies: props.formData?.technologies || [],
+  deadline: props.formData?.deadline || '',
+  description: props.formData?.description || '',
 });
 
-const statusOptions = computed(() => {
-  const options = [
-    { label: 'Новая', value: TaskStatus.new },
-    { label: 'В работе', value: TaskStatus.inProgress },
-  ];
-  if (!props.new) {
-    options.push({ label: 'Выполнена', value: TaskStatus.done });
-  }
-  return options;
-});
+// Опции для селектов
+const categoryOptions = [
+  'Программирование',
+  'Аналитика',
+  'Дизайн',
+  'Документирование',
+  'Тестирование',
+  'Обучение'
+];
 
-const filteredUsers = computed(() => {
-  if (!userFilter.value) return users.value;
-  const search = userFilter.value.toLowerCase();
-  return users.value.filter(
-    (user) =>
-      user.firstname.toLowerCase().includes(search) ||
-      user.lastname.toLowerCase().includes(search)
-  );
-});
+const complexityOptions = ['Низкая', 'Средняя', 'Высокая'];
 
-onMounted(async () => {
-  try {
-    users.value = await userApi.getAll();
-  } catch (error) {
-    console.error('Ошибка загрузки пользователей:', error);
-  }
-});
+const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'Flatter', 'Dart', 'R Lang', 'Java', 'Javascript','HTML', 'CSS', 'C++', 
+'Next', 'Julia', 'TypeScript', 'Python', 'SWIFT', 'KOTLIN', 'XAML', 'C#' ,'Scss', 'Ruby', 'React', 'Unreal Engine GameMode', 'SpringBoot',
+'Keras','Scikit Learn','Pandas','TensorFlow',
+'PyTorch','Vue','PhalconPHP','FastAPI','Flutter','1с','ReactJS','NestJS','Node.js','Next.js','.NET MAUI','.NET 6.0','Django',
+'Unreal Engine','Flutter','NumPy','ReactNative','Flask','Tailwind','Bootstrap','Ruby on Rails','Jest','Mocha','Cypress','Selenium',
 
-function getUserLabel(user: SecuredUser) {
-  return `${user.lastname} ${user.firstname}`;
-}
-
-function getAssigneeDisplay() {
-  if (!taskData.value.assigneeId) return 'Не назначен';
-  const user = users.value.find((u) => u.id === taskData.value.assigneeId);
-  return user ? getUserLabel(user) : 'Не найден';
-}
-
-function filterUsers(val: string, update: (callback: () => void) => void) {
-  update(() => {
-    userFilter.value = val;
-  });
-}
-
+'SQLite','SQL','FireBase','Redis','MySQL','TypeORM','SQL1','PostgreSQL','MongoDB'
+];
 async function onOKClick() {
-  if (!taskData.value.title.trim()) return;
-
-  loading.value = true;
-  try {
-    if (props.new) {
-      await api.create(taskData.value);
-    } else if (props.task?.id) {
-      await api.update(props.task.id, taskData.value);
-    }
-    onDialogOK();
-  } catch (error) {
-    console.error('Ошибка сохранения задачи:', error);
-  } finally {
-    loading.value = false;
+  if (!ideaData.value.title || !ideaData.value.description || !ideaData.value.category) {
+    return;
   }
-}
 
-async function onDelete() {
-  if (!props.task?.id) return;
-  
   loading.value = true;
   try {
-    await api.remove(props.task.id);
+    // Обновляем исходные данные формы
+    Object.assign(props.formData, ideaData.value);
+    
+    // Вызываем переданную функцию onSubmit
+    if (props.onSubmit) {
+      await props.onSubmit();
+    }
+    
     onDialogOK();
   } catch (error) {
-    console.error('Ошибка удаления задачи:', error);
+    console.error('Ошибка сохранения:', error);
   } finally {
     loading.value = false;
   }
 }
 </script>
+
+<style scoped>
+.q-dialog-plugin {
+  border-radius: 12px;
+}
+
+.text-h4 {
+  color: #2a5298;
+}
+
+.q-card-section {
+  padding: 20px;
+}
+</style>

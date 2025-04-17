@@ -25,13 +25,14 @@ export enum StatusIdea {
 }
     
 export enum StatusTeam {
-  searchProject = 'Search for a project',
-  inProgress = 'In progress',
+  recruiting = 'Ищут участников',
+  active = 'Активно рабоатют',
+  inactive = 'Не активна'
 }
     
 export enum PrivacyTeam {
-  open = 'Open',
-  close = 'Close',
+  open = 'Открытые команды',
+  closed = 'Закрытые команды'
 }
     
 export enum Competence {
@@ -75,6 +76,7 @@ export interface SignupResponseDto {
 }
 
 export interface CreateUserDto {
+
   email: string;
   firstname: string;
   lastname: string;
