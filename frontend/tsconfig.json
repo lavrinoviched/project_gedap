@@ -4,7 +4,7 @@
     "baseUrl": ".",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true,       
+    "skipLibCheck": true,
     "types": ["pinia", "quasar"]
   },
   "include": ["src/**/*"],

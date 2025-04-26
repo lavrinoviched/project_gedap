@@ -9,7 +9,7 @@ import {
   TechnologyName
 } from '../../../backend/src/common/types';
 
-const API_URL = 'http://localhost:3000/api/users'; // Замените на ваш фактический URL API
+const API_URL = 'http://localhost:9000/api/users'; // Замените на ваш фактический URL API
 
 export const getAllUsers = async (): Promise<SecuredUser[]> => {
   const response = await api.get('/users');
@@ -21,21 +21,45 @@ export const createUser = async (newUser: CreateUserDto): Promise<SecuredUser | 
   return response.status === 201 ? response.data : undefined;
 };
 
+// users.api.ts
 export const uploadAvatar = async (userId: number, file: File): Promise<string> => {
   const formData = new FormData();
   formData.append('avatar', file);
 
-  const response = await api.post(`/users/${userId}/avatar`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
+  try {
+    const response = await api.post(`/users/${userId}/avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      timeout: 30000, // 30 секунд таймаут
+    });
+    
+    if (response.status === 200) {
+      if (response.data?.avatarPath) {
+        return response.data.avatarPath;
+      }
+      if (response.data?.path) {
+        return response.data.path;
+      }
     }
-  });
-  
-  if (response.status !== 200) {
-    throw new Error('Failed to upload avatar');
+    throw new Error(response.data?.message || 'Не удалось загрузить аватар');
+  } catch (error: unknown) {
+    console.error('Upload error:', error);
+    
+    let errorMessage = 'Ошибка загрузки аватара';
+    
+    if (axios.isAxiosError(error)) {
+      // Обработка ошибок Axios
+      errorMessage = error.response?.data?.message || 
+                    error.response?.data?.error || 
+                    error.message;
+    } else if (error instanceof Error) {
+      // Обработка стандартных ошибок
+      errorMessage = error.message;
+    }
+    
+    throw new Error(errorMessage);
   }
-  
-  return response.data.avatarPath;
 };
 
 
@@ -59,8 +83,13 @@ export const getProfile = async (id: number): Promise<SecuredUser | undefined> =
   return response.status === 200 ? response.data : undefined;
 };
 
+export const deleteUser = async (id: number): Promise<boolean> => {
+  const response = await api.delete(`/users/${id}`);
+  return response.status === 200;
+};
+
 export const updateUser = async (id: number, payload: UpdateUserDto): Promise<SecuredUser | undefined> => {
-  const response = await api.patch(`/users/${id}`, payload);
+  const response = await api.patch(`/users/${id}`, payload); // Изменил PUT на PATCH
   return response.status === 200 ? response.data : undefined;
 };
 
@@ -70,7 +99,7 @@ export const updateProfile = async (id: number, payload: UpdateProfileDto): Prom
 };
 
 export const setUserStatus = async (id: number, status: UserAccountStatus): Promise<boolean> => {
-  const response = await api.post(`/users/${id}/status`, { value: status });
+  const response = await api.patch(`/users/${id}/status`, { status }); // Изменил структуру запроса
   return response.status === 200;
 };
 
@@ -85,14 +114,20 @@ export const removeTechnologies = async (userId: number, technologies: Technolog
 };
 
 const usersApi = {
-  /**
-   * Получает пользователя по ID.
-   * @param id - Идентификатор пользователя.
-   * @returns Обещание с данными пользователя.
-   */
   async get(id: number): Promise<SecuredUser> {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await api.get(`/users/${id}`);
     return response.data;
+  },
+
+   /**
+   * Устанавливает статус пользователя
+   * @param id - ID пользователя
+   * @param status - Новый статус
+   * @returns Promise с boolean результатом
+   */
+   async setUserStatus(id: number, status: UserAccountStatus): Promise<boolean> {
+    const response = await api.patch(`/users/${id}/status`, { status });
+    return response.status === 200;
   },
 
   /**
@@ -101,7 +136,7 @@ const usersApi = {
    * @returns Обещание с данными созданного пользователя.
    */
   async create(user: CreateUserDto): Promise<SecuredUser> {
-    const response = await axios.post(API_URL, user);
+    const response = await api.post('/users', user);
     return response.data;
   },
 
@@ -112,8 +147,12 @@ const usersApi = {
    * @returns Обещание с данными обновленного пользователя.
    */
   async update(id: number, user: UpdateUserDto): Promise<SecuredUser> {
-    const response = await axios.put(`${API_URL}/${id}`, user);
+    const response = await api.patch(`/users/${id}`, user);
     return response.data;
+  },
+  async delete(id: number): Promise<boolean> {
+    const response = await api.delete(`/users/${id}`);
+    return response.status === 200;
   }
 };
 

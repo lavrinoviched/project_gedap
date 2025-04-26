@@ -1,4 +1,3 @@
-
 import {
     Entity,
     Column,
@@ -6,22 +5,27 @@ import {
     CreateDateColumn,
     ManyToOne,
     OneToMany,
-} from 'typeorm';   
-  
+} from 'typeorm';
+
 import { User } from './user.entity';
-  
-import { Competence, StatusIdea } from 'src/common/types'; 
+import { Competence, StatusIdea } from 'src/common/types';
 import { Comments } from './comment.entity';
 
 @Entity()
 export class Idea {
-  
+
+    @Column({ nullable: true })
+    category?: string;
+
+    @Column({ nullable: true })
+    deadline?: Date;
+
     @PrimaryGeneratedColumn()
     id: number;
-    
+
     @Column()
     name: string;
-    
+
     @Column()
     problem: string;
 
@@ -36,19 +40,19 @@ export class Idea {
 
     @Column({ type: 'varchar', array: true, default: '{}' })
     stack: Competence[];
-    
+
     @Column({ default: StatusIdea.new })
     status: StatusIdea;
-    
+
     @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date; 
+    createdAt: Date;
 
     @OneToMany(() => Comments, (comments) => comments.idea)
-    comment: Comments[];
+    comments: Comments[];
 
     @ManyToOne(() => User, (user) => user.idea_customer, { eager: true, onDelete: 'CASCADE' })
     customer: User;
-    
+
     @ManyToOne(() => User, (user) => user.idea_initiator, { eager: true, onDelete: 'CASCADE' })
     initiator: User;
 }

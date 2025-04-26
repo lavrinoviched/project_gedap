@@ -18,14 +18,19 @@ export const useMainStore = defineStore('main', () => {
     lastname: 'unknown',
     roles: [] as Role[],
     userStatus: UserAccountStatus,
+    token: '', // Добавляем токен в состояние
   });
 
-  const initAppState = (appState: LoginResponseDto) => {
+  const initAppState = (appState: LoginResponseDto & { token?: string }) => {
     state.userId = appState.userId;
     state.username = appState.username;
     state.firstname = appState.firstname;
     state.lastname = appState.lastname;
     state.roles = appState.roles;
+    state.token = appState.token || '';
+    if (appState.token) {
+      localStorage.setItem('authToken', appState.token);
+    }
   };
 
   const getCurrentUser = (): SecuredUser => {
@@ -36,6 +41,7 @@ export const useMainStore = defineStore('main', () => {
       lastname: state.lastname,
       roles: state.roles,
       status: UserAccountStatus.active,
+      token: state.token || localStorage.getItem('authToken') || ''
     };
   };
 

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Logger,
   Param,
   Patch,
@@ -81,6 +82,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async getProfile(@Param('id') id: number) {
     return this.usersService.getProfile(id);
+  }
+
+  @Delete(':id')
+  @Roles(Role.admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async remove(@Param('id') id: number) {
+    return this.usersService.remove(id);
   }
 
   @Put(':id/profile')

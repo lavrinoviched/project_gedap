@@ -1,33 +1,32 @@
 <template>
   <q-page class="gallery-page">
     <!-- Hero Section -->
-    <section class="hero-section flex flex-center">
-      <div class="hero-overlay"></div>
-      <div class="text-center hero-content">
-        <h1 class="text-h1 text-weight-bold">ГАЛЕРЕЯ ПРОЕКТОВ</h1>
-        <p class="text-h4 q-mt-md">Галерея проектов – раздел, на котором регулярно появляются новые проекты в IT области</p>
-        <div class="q-mt-lg">
-          <q-btn 
-            color="primary" 
-            label="СОЗДАТЬ ПРОЕКТ" 
-            class="custom-btn" 
-            @click="onNewClick"
-          />
-        </div>
-      </div>
-      
-      <!-- Стрелка для скролла -->
-      <div class="arrow-down" @click="scrollToProjects">
-        <q-icon name="keyboard_arrow_down" size="2em" />
-      </div>
-      
-      <!-- Летающие шарики -->
-      <div class="balloons">
-        <div v-for="i in 12" :key="i" :class="`balloon balloon${i}`"></div>
-      </div>
-    </section>
+<section class="hero-section flex flex-center">
+  <div class="hero-overlay"></div>
+  <div class="text-center hero-content" style="z-index: 2;">
+    <h1 class="text-h1 text-weight-bold">ГАЛЕРЕЯ ПРОЕКТОВ</h1>
+    <p class="text-h4 q-mt-md">Галерея проектов – раздел, на котором регулярно появляются новые проекты в IT области</p>
+    <div class="q-mt-lg">
+      <q-btn 
+        color="primary" 
+        label="СОЗДАТЬ ПРОЕКТ" 
+        class="custom-btn"
+        @click="showCreateDialog = true"
+        no-caps
+      />
+    </div>
+  </div>
+  
+  <div class="arrow-down" @click="scrollToProjects">
+    <q-icon name="keyboard_arrow_down" size="2em" />
+  </div>
+  
+  <div class="balloons">
+    <div v-for="i in 12" :key="i" :class="`balloon balloon${i}`"></div>
+  </div>
+</section>
 
-    <!-- Projects Section с анимацией -->
+    <!-- Projects Section -->
     <section 
       id="projects" 
       class="projects-section q-pa-xl bg-white"
@@ -37,14 +36,14 @@
       <div class="container">
         <h2 class="section-title text-primary">ВСЕ ПРОЕКТЫ</h2>
         <div class="row q-mt-md">
-          <!-- Список проектов -->
-          <div class="col-12 col-md-6 q-pa-md" v-for="(project, index) in projects" :key="index">
+          <div class="col-12 col-md-6 q-pa-md" v-for="(project, index) in approvedProjects" :key="index">
             <q-card class="custom-card shadow-5">
               <q-card-section>
                 <div class="text-h6 q-mb-md">{{ project.title }}</div>
-                <p class="text-caption q-mb-md">Дата окончания приёма заявок: {{ project.deadline }}</p>
+                <p class="text-caption q-mb-md">Дата окончания: {{ formatDate(project.deadline) }}</p>
+                <div class="text-caption q-mb-md">Категория: {{ project.category }}</div>
                 <div class="row justify-between q-mb-md">
-                  <q-btn color="primary" label="Подать заявку на участие" class="q-mr-sm" />
+                  <q-btn color="primary" label="Подать заявку" class="q-mr-sm" />
                   <q-btn color="secondary" label="Подробнее" @click="openDialog(project)" />
                 </div>
               </q-card-section>
@@ -54,57 +53,106 @@
       </div>
     </section>
 
+    <!-- Диалог создания проекта -->
+    <q-dialog v-model="showCreateDialog">
+      <q-card class="dialog-card" style="width: 600px; max-width: 90vw;">
+        <q-card-section class="dialog-header">
+          <div class="text-h6">Создание нового проекта</div>
+        </q-card-section>
+
+        <q-card-section class="q-gutter-md">
+          <q-input v-model="newProject.title" label="Название проекта" outlined 
+            :rules="[val => !!val || 'Обязательное поле']" />
+          
+          <q-select
+            v-model="newProject.category"
+            :options="categories"
+            label="Категория"
+            outlined
+            :rules="[val => !!val || 'Обязательное поле']"
+          />
+          
+          <q-select
+            v-model="newProject.complexity"
+            :options="complexities"
+            label="Сложность"
+            outlined
+            :rules="[val => !!val || 'Обязательное поле']"
+          />
+          
+          <q-input
+            v-model="newProject.description"
+            label="Описание"
+            type="textarea"
+            outlined
+            :rules="[val => !!val || 'Обязательное поле']"
+          />
+          
+          <q-input
+            v-model="newProject.technologies"
+            label="Технологии (через запятую)"
+            outlined
+            :rules="[val => !!val || 'Обязательное поле']"
+          />
+          
+          <q-input
+            v-model="newProject.deadline"
+            label="Дедлайн"
+            type="date"
+            outlined
+            :rules="[val => !!val || 'Обязательное поле']"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Отмена" color="negative" v-close-popup />
+          <q-btn
+            flat
+            label="Создать"
+            color="primary"
+            @click="createProject"
+            :loading="isCreating"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!-- Диалог с подробной информацией -->
-    <q-dialog v-model="showDialog">
+    <q-dialog v-model="showDialog" maximized>
       <q-card class="dialog-card">
         <q-card-section class="dialog-header">
           <div class="text-h6">{{ selectedProject?.title }}</div>
+          <q-btn flat round dense icon="close" class="float-right" v-close-popup />
         </q-card-section>
 
         <q-card-section class="dialog-body">
           <div class="section">
-            <div class="text-subtitle1 q-mb-sm">Краткое описание проекта</div>
+            <div class="text-subtitle1 q-mb-sm">Описание проекта</div>
             <div class="text-body2 q-mb-md">
-              <p><strong>Проблема:</strong> {{ selectedProject?.problem }}</p>
-              <p><strong>Предлагаемое решение:</strong> {{ selectedProject?.solution }}</p>
-              <p><strong>Ожидаемый результат:</strong> {{ selectedProject?.expectedResult }}</p>
-              <p><strong>Ресурсы:</strong> {{ selectedProject?.resources }}</p>
+              {{ selectedProject?.description }}
             </div>
           </div>
 
           <div class="section">
-            <div class="text-subtitle1 q-mb-sm">Информация</div>
-            <div class="info-item q-mb-sm">
-              <strong>Заказчик:</strong> ВШЦТ
-            </div>
-            <div class="info-item q-mb-sm">
-              <strong>Инициатор:</strong> Екатерина Сердюкова
-            </div>
-            <div class="info-item q-mb-sm">
-              <strong>Статус:</strong>
-              <q-badge :color="selectedProject?.status === 'В разработке' ? 'orange' : 'green'">
-                {{ selectedProject?.status }}
-              </q-badge>
-            </div>
-            <div class="info-item q-mb-sm">
-              <strong>Дата старта проекта:</strong> 03.06.2024
-            </div>
-            <div class="info-item q-mb-sm">
-              <strong>Дата окончания проекта:</strong> {{ selectedProject?.deadline }}
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="text-subtitle1 q-mb-sm">Участники проекта</div>
-            <div v-for="(member, index) in selectedProject?.members" :key="index" class="member-item q-mb-sm">
-              <q-btn flat :label="member.name" @click="goToProfile(member.id)" class="text-primary" />
-              <span class="text-caption q-ml-sm">{{ member.role }}</span>
+            <div class="text-subtitle1 q-mb-sm">Детали проекта</div>
+            <div class="info-grid">
+              <div class="info-item">
+                <strong>Категория:</strong> {{ selectedProject?.category }}
+              </div>
+              <div class="info-item">
+                <strong>Сложность:</strong> {{ selectedProject?.complexity }}
+              </div>
+              <div class="info-item">
+                <strong>Технологии:</strong> {{ selectedProject?.technologies?.join(', ') }}
+              </div>
+              <div class="info-item">
+                <strong>Дедлайн:</strong> {{ formatDate(selectedProject?.deadline) }}
+              </div>
             </div>
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="dialog-actions">
-          <q-btn flat label="Прокомментировать" color="primary" @click="openComments" />
           <q-btn flat label="Подать заявку" color="primary" @click="applyForProject" />
           <q-btn flat label="Закрыть" color="primary" v-close-popup />
         </q-card-actions>
@@ -115,66 +163,99 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-
-// Интерфейсы для типизации
-interface ProjectMember {
-  id: number;
-  name: string;
-  role: string;
-}
+import { useQuasar } from 'quasar';
+import { api } from 'src/boot/axios';
 
 interface Project {
+  id: number;
   title: string;
+  category: string;
+  complexity: string;
+  description: string;
+  technologies: string[];
   deadline: string;
-  problem: string;
-  solution: string;
-  expectedResult: string;
-  resources: string;
-  members: ProjectMember[];
-  status: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
 }
 
-// Данные проектов с правильной типизацией
-const projects = ref<Project[]>([
-  { 
-    title: 'Чат-бот в телеграмм', 
-    deadline: '29.11.2023',
-    problem: 'Отсутствие единой системы для управления учебным процессом.',
-    solution: 'Создание портала с персональными кабинетами для студентов и преподавателей.',
-    expectedResult: 'Повышение эффективности обучения и упрощение контроля успеваемости.',
-    resources: 'Знание Python, работа с Telegram API',
-    members: [
-      { id: 1, name: 'Екатерина Сердюкова', role: 'Тим-лид' },
-      { id: 2, name: 'Иван Иванов', role: 'Разработчик' },
-      { id: 3, name: 'Петр Петров', role: 'Дизайнер' },
-    ],
-    status: 'В разработке',
-  },
-  { 
-    title: 'Онлайн-платформа для обучения', 
-    deadline: '08.02.2024',
-    problem: 'Необходимость в современной системе дистанционного обучения.',
-    solution: 'Разработка интерактивной платформы с курсами и тестами.',
-    expectedResult: 'Улучшение качества дистанционного образования.',
-    resources: 'Знание JavaScript, React, Node.js',
-    members: [
-      { id: 1, name: 'Алексей Смирнов', role: 'Тим-лид' },
-      { id: 2, name: 'Мария Петрова', role: 'Фронтенд-разработчик' },
-      { id: 3, name: 'Дмитрий Волков', role: 'Бэкенд-разработчик' },
-    ],
-    status: 'Завершен',
-  }
-]);
+const $q = useQuasar();
 
-// Состояние для управления диалогом
+// Состояния
+const showCreateDialog = ref(false);
+const isCreating = ref(false);
 const showDialog = ref(false);
-const selectedProject = ref<Project | null>(null);
 const isProjectsVisible = ref(false);
 const projectsSection = ref<HTMLElement | null>(null);
+const selectedProject = ref<Project | null>(null);
+const approvedProjects = ref<Project[]>([]);
+const allProjects = ref<Project[]>([]);
+
+// Данные формы
+const newProject = ref({
+  title: '',
+  category: '',
+  complexity: '',
+  description: '',
+  technologies: '',
+  deadline: '',
+});
+
+const categories = [
+  'Программирование', 'Аналитика', 'Дизайн', 
+  'Документирование', 'Тестирование', 'Обучение'
+];
+
+const complexities = ['Низкая', 'Средняя', 'Высокая'];
 
 // Методы
-const onNewClick = () => {
-  console.log('Создание нового проекта');
+const loadProjects = async () => {
+  try {
+    const response = await api.get('/projects');
+    allProjects.value = response.data;
+    approvedProjects.value = allProjects.value.filter(p => p.status === 'approved');
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Ошибка при загрузке проектов',
+    });
+  }
+};
+
+const createProject = async () => {
+  isCreating.value = true;
+  try {
+    await api.post('/project-applications', {
+      ...newProject.value,
+      technologies: newProject.value.technologies.split(',').map(t => t.trim()),
+      status: 'pending',
+    });
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Заявка на проект отправлена на модерацию',
+    });
+    
+    showCreateDialog.value = false;
+    resetForm();
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Ошибка при создании проекта',
+    });
+  } finally {
+    isCreating.value = false;
+  }
+};
+
+const resetForm = () => {
+  newProject.value = {
+    title: '',
+    category: '',
+    complexity: '',
+    description: '',
+    technologies: '',
+    deadline: '',
+  };
 };
 
 const openDialog = (project: Project) => {
@@ -182,16 +263,11 @@ const openDialog = (project: Project) => {
   showDialog.value = true;
 };
 
-const goToProfile = (id: number) => {
-  console.log('Переход к профилю участника:', id);
-};
-
-const openComments = () => {
-  console.log('Открытие комментариев');
-};
-
 const applyForProject = () => {
-  console.log('Подача заявки на проект');
+  $q.notify({
+    type: 'info',
+    message: 'Заявка на участие отправлена',
+  });
   showDialog.value = false;
 };
 
@@ -202,8 +278,15 @@ const scrollToProjects = () => {
   }
 };
 
-// Анимация появления при скролле
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('ru-RU');
+};
+
+// Хуки жизненного цикла
 onMounted(() => {
+  loadProjects();
+  
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -428,6 +511,12 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
 .dialog-actions {
   padding: 16px;
   border-top: 1px solid #eee;
@@ -450,6 +539,10 @@ onMounted(() => {
   
   .custom-card {
     margin-bottom: 20px;
+  }
+
+    .info-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

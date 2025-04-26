@@ -7,20 +7,15 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
-  // Добавьте эту строку для обслуживания статических файлов
+  // Обслуживание статических файлов
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
-
-  // Глобальная валидация
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      disableErrorMessages: false,
-      whitelist: true,
-      forbidNonWhitelisted: true
-    })
-  );
+  app.useGlobalPipes(new ValidationPipe({ 
+    transform: true,
+    disableErrorMessages: false,
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }));
 
   await app.listen(3000);
 }

@@ -1,5 +1,3 @@
-
-
 export enum Role {
   admin = 'admin',
   user = 'user',
@@ -10,7 +8,26 @@ export enum UserCommandStatus {
   inTeam = 'In the team',
   expelled = 'Expelled',
 }
-    
+
+export interface Idea {
+  id: number;
+  name: string;
+  problem: string;
+  solution: string;
+  result: string;
+  resource: string;
+  stack: TechnologyName[];
+  status: StatusIdea;
+  createdAt: Date; // Изменили string на Date
+  customer: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  category?: string;
+  deadline?: string;
+}
+ 
 export enum StatusProject {
   searchTeam = 'Search for team',
   teamFound = 'Team found',
@@ -69,6 +86,19 @@ export interface SignUpRequestDto {
   password: string;
   firstname: string;
   lastname: string;
+}
+
+export interface TaskForm {
+  title: string;
+  category: string;
+  description: string;
+  technologies: string[];
+  initiator?: string;
+  deadline?: string;
+  teamSize?: string;
+  hasReward?: boolean;
+  reward?: string;
+  complexity?: string;
 }
 
 export interface SignupResponseDto {
@@ -192,6 +222,7 @@ export type SecuredUser = {
   };
   group?: string;
   telephone?: string;
+  token: string; // Добавьте эту строку
 };
 
 export type TaskDto = {

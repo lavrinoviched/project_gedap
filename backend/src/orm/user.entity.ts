@@ -48,14 +48,12 @@ export class User {
   @Column({ nullable: true })
   avatarPath?: string;
 
-
   @Column('simple-json', { nullable: true })
   experience?: {
     years: number;
     projectsCompleted: number;
     technologies?: TechnologyName[]; // Add technologies here
   };
-
 
   @Column('simple-json', { nullable: true })
   technologies?: Technology[]; // Store as JSON array
@@ -93,7 +91,7 @@ export class User {
   @OneToMany(() => Project, (project) => project.customer)
   project_customer: Project[];
 
-  @OneToMany(() => Comments, (comment) => comment.users)
+  @OneToMany(() => Comments, (comment) => comment.author)
   comment: Comments[];
 
   @ManyToOne(() => Team, (team) => team.user, { eager: true, onDelete: 'SET NULL' })
@@ -113,12 +111,12 @@ export class User {
       personalQualities: this.personalQualities,
       telephone: this.telephone
     };
-  
+
     // Для админа не возвращаем группу
     if (!this.roles.includes(Role.admin)) {
       result.group = this.group;
     }
-  
+
     return result as SecuredUser; // Приводим к типу SecuredUser
   }
 }

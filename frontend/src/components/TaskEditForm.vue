@@ -78,24 +78,26 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
+import { useQuasar } from 'quasar';
 
 interface IdeaFormData {
   title: string;
   category: string;
-  complexity: string;
-  technologies: string[];
-  deadline: string;
   description: string;
+  technologies: string[];
+  initiator?: string; // Добавляем необязательное поле
+  deadline?: string;
+  complexity?: string;
 }
 
 interface TaskEditProps {
   new: boolean;
   formData: IdeaFormData;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => Promise<void>; // Возвращаем оригинальную сигнатуру
 }
 
 const props = defineProps<TaskEditProps>();
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = 
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const loading = ref(false);
@@ -104,10 +106,11 @@ const loading = ref(false);
 const ideaData = ref<IdeaFormData>({
   title: props.formData?.title || '',
   category: props.formData?.category || '',
-  complexity: props.formData?.complexity || 'Средняя',
-  technologies: props.formData?.technologies || [],
-  deadline: props.formData?.deadline || '',
   description: props.formData?.description || '',
+  technologies: props.formData?.technologies || [],
+  initiator: props.formData?.initiator || '', // Инициализируем
+  deadline: props.formData?.deadline || '',
+  complexity: props.formData?.complexity || 'Средняя'
 });
 
 // Опции для селектов
@@ -122,7 +125,7 @@ const categoryOptions = [
 
 const complexityOptions = ['Низкая', 'Средняя', 'Высокая'];
 
-const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'Flatter', 'Dart', 'R Lang', 'Java', 'Javascript','HTML', 'CSS', 'C++', 
+const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'Flatter', 'Dart', 'R Lang', 'Java', 'Javascript','HTML', 'CSS', 'C++',
 'Next', 'Julia', 'TypeScript', 'Python', 'SWIFT', 'KOTLIN', 'XAML', 'C#' ,'Scss', 'Ruby', 'React', 'Unreal Engine GameMode', 'SpringBoot',
 'Keras','Scikit Learn','Pandas','TensorFlow',
 'PyTorch','Vue','PhalconPHP','FastAPI','Flutter','1с','ReactJS','NestJS','Node.js','Next.js','.NET MAUI','.NET 6.0','Django',
@@ -130,29 +133,50 @@ const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'F
 
 'SQLite','SQL','FireBase','Redis','MySQL','TypeORM','SQL1','PostgreSQL','MongoDB'
 ];
+
 async function onOKClick() {
+  const $q = useQuasar(); // Добавляем здесь
+  
+  // Валидация обязательных полей
   if (!ideaData.value.title || !ideaData.value.description || !ideaData.value.category) {
+    $q.notify({
+      message: 'Заполните все обязательные поля',
+      color: 'negative',
+      icon: 'error',
+      position: 'top'
+    });
     return;
   }
 
-  loading.value = true;
+  const loading = ref(true);
+  
   try {
-    // Обновляем исходные данные формы
     Object.assign(props.formData, ideaData.value);
-    
-    // Вызываем переданную функцию onSubmit
+
     if (props.onSubmit) {
-      await props.onSubmit();
+      await props.onSubmit(); // Вызываем без параметров
+      onDialogOK();
     }
-    
-    onDialogOK();
   } catch (error) {
     console.error('Ошибка сохранения:', error);
+    
+    let errorMessage = 'Ошибка при сохранении идеи';
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      errorMessage = (error as { message: string }).message;
+    }
+
+    $q.notify({
+      message: errorMessage,
+      color: 'negative',
+      icon: 'error',
+      position: 'top'
+    });
   } finally {
     loading.value = false;
   }
 }
 </script>
+
 
 <style scoped>
 .q-dialog-plugin {

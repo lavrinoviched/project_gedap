@@ -154,6 +154,13 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
+  async remove(id: number): Promise<void> {
+    const result = await this.userRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
   async removeTechnologiesFromUser(userId: number, techNames: TechnologyName[]): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
 

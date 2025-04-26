@@ -2,6 +2,8 @@ import { api } from './axios';
 import { LoginResponseDto } from '../../../backend/src/common/types';
 import axios from 'axios'; // Импортируем axios для обработки ошибок
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'; // ← 9000 вместо 3000
+
 function useJwtToken(token: string) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }

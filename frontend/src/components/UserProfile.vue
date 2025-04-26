@@ -4,37 +4,40 @@
       <!-- Аватар и основная информация -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-    <img
-      :src="avatarUrl"
-      alt="Аватар"
-      class="avatar"
-      @error="avatarUrl = defaultAvatar"
-    >
-    <input
-      type="file"
-      ref="fileInput"
-      @change="handleAvatarChange"
-      accept="image/*"
-      style="display: none"
-    >
-    <button
-      class="avatar-edit-btn"
-      @click="fileInput.click()"
-      
-    >
-      <i class="fas fa-camera"></i>
-    </button>
-    <button
-      v-if="avatarUrl && avatarUrl !== defaultAvatar"
-      class="avatar-remove-btn"
-      @click="removeAvatar"
-    >
-      <i class="fas fa-trash"></i>
-    </button>
-    <div v-if="avatarUploading" class="upload-progress">
-      <i class="fas fa-spinner fa-spin"></i>
-    </div>
-  </div>
+          <div class="avatar-container" :style="avatarCircleStyle">
+            <span v-if="!hasCustomAvatar">{{ avatarInitials }}</span>
+          </div>
+          
+          <input
+            type="file"
+            ref="fileInput"
+            @change="handleAvatarChange"
+            accept="image/*"
+            style="display: none"
+          >
+          
+          <button
+            class="avatar-edit-btn"
+            @click="fileInput.click()"
+            title="Изменить аватар"
+          >
+            <i class="fas fa-camera"></i>
+          </button>
+          
+          <button
+            v-if="hasCustomAvatar"
+            class="avatar-remove-btn"
+            @click="removeAvatar"
+            title="Удалить аватар"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+          
+          <div v-if="avatarUploading" class="upload-progress">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+        </div>
+        
         <h1 class="profile-title">{{ user.fullName }}</h1>
         <p class="profile-role">{{ user.role }}</p>
       </div>
@@ -402,7 +405,7 @@ import { useMainStore } from '../stores/main-store';
 import * as usersApi from '../api/users.api';
 import { useRouter } from 'vue-router';
 import 'vue-toastification/dist/index.css';
-import { api } from '../api/axios'; // Или правильный путь к вашему файлу с axios
+
 
 const toast = useToast();
 const mainStore = useMainStore();
@@ -610,47 +613,38 @@ const handleAvatarChange = async (e) => {
   if (!file) return;
 
   // Проверка типа файла
-  if (!file.type.match(/image\/(jpeg|png|jpg)/)) {
-    toast.error('Пожалуйста, выберите файл изображения (JPEG, PNG)');
+  if (!file.type.startsWith('image/')) {
+    toast.error('Пожалуйста, выберите файл изображения (JPEG, PNG, GIF)');
     return;
   }
 
-  // Проверка размера файла
-  if (file.size > 2 * 1024 * 1024) {
-    toast.error('Размер файла не должен превышать 2MB');
+  // Проверка размера файла (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    toast.error('Максимальный размер файла - 5MB');
     return;
   }
 
   avatarUploading.value = true;
 
   try {
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    const response = await usersApi.uploadAvatar(user.id, file);
+    const avatarPath = await usersApi.uploadAvatar(user.id, file);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    avatarUrl.value = `${baseUrl}${avatarPath}?t=${Date.now()}`;
     
-    if (response) {
-      // Обновляем URL с timestamp для предотвращения кэширования
-      avatarUrl.value = `${response}?t=${Date.now()}`;
-      
-      // Обновляем данные пользователя
-      const updatedUser = await usersApi.getProfile(user.id);
-      if (updatedUser) {
-        Object.assign(user, {
-          firstName: updatedUser.firstname,
-          lastName: updatedUser.lastname,
-          avatar: updatedUser.avatarPath
-        });
-      }
-      
-      toast.success('Аватар успешно обновлен');
+    // Обновляем данные пользователя
+    user.avatar = avatarPath;
+    const currentUser = mainStore.getCurrentUser();
+    if (currentUser) {
+      currentUser.avatar = avatarPath;
     }
+    
+    toast.success('Аватар успешно обновлен');
   } catch (error) {
-    console.error('Ошибка загрузки аватара:', error);
-    toast.error(error.response?.data?.message || 'Ошибка при загрузке аватарки');
+    console.error('Upload error:', error);
+    toast.error(error.message || 'Ошибка при загрузке аватара. Пожалуйста, попробуйте позже.');
   } finally {
     avatarUploading.value = false;
-    e.target.value = ''; // Сбрасываем input file
+    e.target.value = ''; // Сбрасываем input
   }
 };
 
@@ -678,6 +672,40 @@ onMounted(() => {
 const triggerExperienceFileInput = () => {
   experienceFileInput.value.click();
 };
+
+const avatarInitials = computed(() => {
+  if (!user.firstName && !user.lastName) return '?';
+  return `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase();
+});
+
+const hasCustomAvatar = computed(() => {
+  return avatarUrl.value && avatarUrl.value !== defaultAvatar.value;
+});
+
+const avatarCircleStyle = computed(() => {
+  if (hasCustomAvatar.value) {
+    return {
+      backgroundImage: `url(${avatarUrl.value})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      borderRadius: '50%',
+      width: '100%',
+      height: '100%'
+    };
+  }
+  return {
+    backgroundColor: '#1a237e',
+    color: 'white',
+    borderRadius: '50%',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '3rem',
+    fontWeight: 'bold'
+  };
+});
 
 const handleExperienceFileChange = (e) => {
   const files = Array.from(e.target.files);
@@ -754,32 +782,41 @@ const navigateToApplications = () => {
 };
 
 const navigateToUserManagement = () => {
-  router.push('/admin/users');
+  router.push('/users');
 };
 
 // Загрузка данных пользователя
 const loadUserData = async () => {
   try {
     const currentUser = mainStore.getCurrentUser();
-    if (!currentUser) return;
+    if (!currentUser) {
+      toast.error('Не удалось загрузить данные пользователя');
+      return;
+    }
     
     const userProfile = await usersApi.getProfile(currentUser.id);
-    if (userProfile) {
-      user.id = currentUser.id;
-      user.firstName = userProfile.firstname;
-      user.lastName = userProfile.lastname;
-      user.email = userProfile.email;
-      user.phone = userProfile.telephone || '';
-      user.group = userProfile.group || '';
-      user.role = userProfile.roles?.includes('admin') ? 'Администратор' : 'Пользователь';
-      
-      // Обновляем аватар
-      avatarUrl.value = userProfile.avatarPath 
-        ? `${userProfile.avatarPath}?t=${Date.now()}` 
-        : defaultAvatar.value;
+    if (!userProfile) {
+      toast.error('Профиль пользователя не найден');
+      return;
     }
+
+    user.id = currentUser.id;
+    user.firstName = userProfile.firstname || '';
+    user.lastName = userProfile.lastname || '';
+    user.email = userProfile.email || '';
+    user.phone = userProfile.telephone || '';
+    user.group = userProfile.group || '';
+    user.role = userProfile.roles?.includes('admin') 
+      ? 'Администратор' 
+      : 'Студент';
+    
+    // Обновляем аватар
+    avatarUrl.value = userProfile.avatarPath 
+      ? `${import.meta.env.VITE_API_BASE_URL}${userProfile.avatarPath}?t=${Date.now()}`
+      : defaultAvatar.value;
   } catch (error) {
     console.error('Ошибка загрузки профиля:', error);
+    toast.error('Ошибка при загрузке данных профиля');
     avatarUrl.value = defaultAvatar.value;
   }
 };

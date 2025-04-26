@@ -7,41 +7,39 @@
         <h1 class="text-h1 text-weight-bold">БАНК ИДЕЙ</h1>
         <p class="text-h4 q-mt-md">Платформа, которая представляет собой удобный список идей проектов от партнеров и сотрудников нашего университета</p>
         <div class="q-mt-lg">
-          <q-btn 
-            color="primary" 
-            label="Предложить идею проекта" 
-            class="custom-btn" 
+          <q-btn
+            color="primary"
+            label="Предложить идею проекта"
+            class="custom-btn"
             @click="onNewClick"
           />
         </div>
       </div>
-      
+
       <!-- Стрелка для скролла -->
       <div class="arrow-down" @click="scrollToHowItWorks">
         <q-icon name="keyboard_arrow_down" size="2em" />
       </div>
-      
+
       <!-- Летающие шарики -->
       <div class="balloons">
         <div v-for="i in 12" :key="i" :class="`balloon balloon${i}`"></div>
       </div>
     </section>
 
-    
-
     <!-- How It Works Section -->
-    <section 
-      id="how-it-works" 
+    <section
+      id="how-it-works"
       class="how-it-works-section q-pa-xl"
       :class="{ visible: isHowItWorksVisible }"
     >
       <div class="container">
         <h2 class="section-title">КАК РАБОТАТЬ С БАНКОМ ИДЕЙ</h2>
-        
+
         <div class="steps-container">
-          <div 
-            v-for="(step, index) in steps" 
-            :key="index" 
+          <div
+            v-for="(step, index) in steps"
+            :key="index"
             class="step-item"
             :class="{ visible: step.visible }"
             @mouseenter="hoverStep(index)"
@@ -56,65 +54,65 @@
     </section>
 
     <!-- Tasks Section -->
-    <section 
-      id="tasks" 
+    <section
+      id="tasks"
       class="tasks-section q-pa-xl"
       :class="{ visible: isTasksVisible }"
     >
       <div class="container">
         <h2 class="section-title">ДОСТУПНЫЕ ИДЕИ</h2>
-        
+
         <!-- Кнопка фильтров -->
         <div class="q-mb-lg text-center">
-          <q-btn 
-            color="primary" 
-            label="Фильтры" 
+          <q-btn
+            color="primary"
+            label="Фильтры"
             icon="filter_list"
             @click="showFilters = !showFilters"
             class="q-mb-md"
           />
         </div>
-        
+
         <!-- Фильтры (скрытые по умолчанию) -->
         <div class="filter-bar q-mb-lg shadow-2" v-show="showFilters">
           <div class="row">
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedInitiator" 
-                :options="initiatorOptions" 
-                label="Инициатор проекта" 
-                outlined 
+              <q-select
+                v-model="selectedInitiator"
+                :options="initiatorOptions"
+                label="Инициатор проекта"
+                outlined
                 dense
                 color="primary"
               />
             </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedStack" 
-                :options="stackOptions" 
-                label="Стек технологий" 
-                outlined 
+              <q-select
+                v-model="selectedStack"
+                :options="stackOptions"
+                label="Стек технологий"
+                outlined
                 dense
                 multiple
                 color="primary"
               />
             </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedStatus" 
-                :options="statusOptions" 
-                label="Статус идеи" 
-                outlined 
+              <q-select
+                v-model="selectedStatus"
+                :options="statusOptions"
+                label="Статус идеи"
+                outlined
                 dense
                 color="primary"
               />
             </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedTeamSize" 
-                :options="teamSizeOptions" 
-                label="Размер команды" 
-                outlined 
+              <q-select
+                v-model="selectedTeamSize"
+                :options="teamSizeOptions"
+                label="Размер команды"
+                outlined
                 dense
                 color="primary"
               />
@@ -122,31 +120,31 @@
           </div>
           <div class="row">
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedHasReward" 
-                :options="hasRewardOptions" 
-                label="Награда участникам" 
-                outlined 
+              <q-select
+                v-model="selectedHasReward"
+                :options="hasRewardOptions"
+                label="Награда участникам"
+                outlined
                 dense
                 color="primary"
               />
             </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedCategory" 
-                :options="categoryOptions" 
-                label="Категория задачи" 
-                outlined 
+              <q-select
+                v-model="selectedCategory"
+                :options="categoryOptions"
+                label="Категория задачи"
+                outlined
                 dense
                 color="primary"
               />
             </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm">
-              <q-select 
-                v-model="selectedComplexity" 
-                :options="complexityOptions" 
-                label="Сложность" 
-                outlined 
+              <q-select
+                v-model="selectedComplexity"
+                :options="complexityOptions"
+                label="Сложность"
+                outlined
                 dense
                 color="primary"
               />
@@ -164,11 +162,11 @@
           </div>
           <div class="row">
             <div class="col-md-6 col-sm-12 col-12 q-pa-sm">
-              <q-input 
-                class="search-input" 
-                outlined 
-                dense 
-                v-model="searchText" 
+              <q-input
+                class="search-input"
+                outlined
+                dense
+                v-model="searchText"
                 label="Поиск по названию"
                 color="primary"
               >
@@ -177,19 +175,17 @@
                 </template>
               </q-input>
             </div>
-          
-            </div>
             <div class="col-md-3 col-sm-6 col-12 q-pa-sm flex flex-center">
-              <q-btn 
-                color="primary" 
-                label="Сбросить фильтры" 
+              <q-btn
+                color="primary"
+                label="Сбросить фильтры"
                 icon="refresh"
                 @click="resetFilters"
               />
             </div>
           </div>
         </div>
-        
+
         <!-- Таблица задач -->
         <div class="tasks-table bg-white shadow-2">
           <div class="table-header">
@@ -198,49 +194,49 @@
             <div class="header-deadline">Срок выполнения</div>
             <div class="header-actions">Действия</div>
           </div>
-          
-          <div 
-            v-for="task in filteredTasks" 
-            :key="task.id" 
+
+          <div
+            v-for="idea in filteredIdeas"
+            :key="idea.id"
             class="task-row"
           >
             <div class="task-title">
               <q-icon name="assignment" color="primary" class="q-mr-sm" />
-              {{ task.title }}
+              {{ idea.name }}
             </div>
             <div class="task-category">
-              {{ task.category }}
+              {{ idea.category || 'Нет категории' }}
             </div>
             <div class="task-deadline">
               <q-icon name="event" color="primary" class="q-mr-sm" />
-              {{ task.deadline }}
+              {{ idea.deadline || 'Нет дедлайна' }}
             </div>
             <div class="task-actions">
-              <q-btn 
-                flat 
-                color="primary" 
-                label="Подробнее" 
+              <q-btn
+                flat
+                color="primary"
+                label="Подробнее"
                 icon="info"
                 class="action-btn"
-                @click="showTaskDetails(task)"
+                @click="showTaskDetails(idea)"
               />
-              <q-btn 
-                flat 
-                color="primary" 
-                label="Взять задачу" 
+              <q-btn
+                flat
+                color="primary"
+                label="Взять задачу"
                 icon="playlist_add_check"
                 class="action-btn"
-                @click="takeTask(task)"
+                @click="takeTask(idea)"
               />
             </div>
           </div>
         </div>
-     
+      </div>
     </section>
 
     <!-- Become Customer Section -->
-    <section 
-      id="become-customer" 
+    <section
+      id="become-customer"
       class="become-customer-section q-pa-xl bg-white"
       :class="{ visible: isBecomeCustomerVisible }"
     >
@@ -251,12 +247,12 @@
             ХОТИТЕ СТАТЬ ЗАКАЗЧИКОМ?
           </h2>
           <p class="section-description" :class="{ animated: isBecomeCustomerVisible }">
-            Если Вы хотите предложить свою идею для «Банка идей» или стать партнером университета, 
+            Если Вы хотите предложить свою идею для «Банка идей» или стать партнером университета,
             перейдите в раздел «Создать идею»
           </p>
-          <q-btn 
-            color="primary" 
-            label="Создать идею" 
+          <q-btn
+            color="primary"
+            label="Создать идею"
             size="lg"
             icon="add_task"
             class="custom-btn"
@@ -269,48 +265,36 @@
   </q-page>
 </template>
 
+
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import TaskEditForm from '../components/TaskEditForm.vue';
 import { computed, onMounted, ref } from 'vue';
-import { api } from 'boot/axios';
+import { Idea, StatusIdea, TechnologyName } from '../../../backend/src/common/types';
+import { IdeaApi } from '../api/ideas.api';
+import { useMainStore } from 'src/stores/main-store';
 
-const $q = useQuasar();
+const $q = useQuasar()
 
-interface Task {
-  id: number;
-  title: string;
-  category: string;
-  complexity: string;
-  status: string;
-  reward: string;
-  deadline: string;
-  initiator: string;
-  teamSize: string;
-  hasReward: boolean;
-  technologies: string[];
-  description: string;
-}
-
-interface Step {
-  description: string;
-  visible: boolean;
-  hovered: boolean;
-}
+// Реактивные данные
+const searchText = ref('');
+const isHowItWorksVisible = ref(false);
+const isTasksVisible = ref(false);
+const isBecomeCustomerVisible = ref(false);
+const showFilters = ref(false);
+const ideas = ref<Idea[]>([]);
 
 // Опции для селектов
 const categoryOptions = ['Программирование', 'Аналитика', 'Дизайн', 'Документирование', 'Тестирование', 'Обучение'];
 const complexityOptions = ['Низкая', 'Средняя', 'Высокая'];
-const rewardOptions = ['Сертификат', 'Практика', 'Денежная', 'Благодарность'];
 const teamSizeOptions = ['1-2 человека', '2-3 человека', '3-4 человека', '4-5 человек'];
-const stackOptions = ['Не важно','PHP', 'Blueprint', 'GOLANG', 'Rust', 'Flatter', 'Dart', 'R Lang', 'Java', 'Javascript','HTML', 'CSS', 'C++', 
-'Next', 'Julia', 'TypeScript', 'Python', 'SWIFT', 'KOTLIN', 'XAML', 'C#' ,'Scss', 'Ruby', 'React', 'Unreal Engine GameMode', 'SpringBoot',
-'Keras','Scikit Learn','Pandas','TensorFlow',
-'PyTorch','Vue','PhalconPHP','FastAPI','Flutter','1с','ReactJS','NestJS','Node.js','Next.js','.NET MAUI','.NET 6.0','Django',
-'Unreal Engine','Flutter','NumPy','ReactNative','Flask','Tailwind','Bootstrap','Ruby on Rails','Jest','Mocha','Cypress','Selenium',
-
-'SQLite','SQL','FireBase','Redis','MySQL','TypeORM','SQL1','PostgreSQL','MongoDB'
-];
+const stackOptions = Object.values(TechnologyName).filter(v => typeof v === 'string');
+const statusOptions = Object.values(StatusIdea).map(status => ({
+  label: status,
+  value: status
+}));
+const initiatorOptions = ref([]); // Добавьте нужные опции для инициатора
+const hasRewardOptions = ref([{ label: 'Да', value: true }, { label: 'Нет', value: false }]);
 
 // Реактивные данные формы
 const newTaskForm = ref({
@@ -326,31 +310,20 @@ const newTaskForm = ref({
   complexity: 'Средняя'
 });
 
-// Реактивные данные
-const searchText = ref('');
-const isHowItWorksVisible = ref(false);
-const isTasksVisible = ref(false);
-const isBecomeCustomerVisible = ref(false);
-const showFilters = ref(false);
+// Добавьте недостающие реактивные свойства
+const selectedInitiator = ref(null);
+const selectedStack = ref(null);
+const selectedStatus = ref(null);
+const selectedTeamSize = ref(null);
+const selectedHasReward = ref(null);
+const selectedCategory = ref(null);
+const selectedComplexity = ref(null);
+const deadlineFrom = ref(null);
 
-// Опции фильтров
-const selectedInitiator = ref<string | null>(null);
-const selectedStack = ref<string[]>([]);
-const selectedStatus = ref<string | null>(null);
-const selectedTeamSize = ref<string | null>(null);
-const selectedHasReward = ref<string | null>(null);
-const selectedCategory = ref<string | null>(null);
-const selectedComplexity = ref<string | null>(null);
-const selectedReward = ref<string | null>(null);
-const deadlineFrom = ref<string | null>(null);
-
-const initiatorOptions = ['Все', 'Сотрудник вуза', 'Партнер вуза'];
-const statusOptions = ['Все', 'Открыта', 'В работе', 'Завершена'];
-const hasRewardOptions = ['Все', ...rewardOptions, 'Рекомендация'];
 
 
 // Данные шагов
-const steps = ref<Step[]>([
+const steps = ref([
   {
     description: 'Выберите фильтр идеи в поиске',
     visible: false,
@@ -373,145 +346,88 @@ const steps = ref<Step[]>([
   }
 ]);
 
-// Данные задач
-const tasks = ref<Task[]>([
-  {
-    id: 1,
-    title: 'Разработка мобильного приложения для учета книг',
-    category: 'Программирование',
-    complexity: 'Средняя',
-    status: 'Открыта',
-    reward: 'Сертификат',
-    deadline: '15.12.2023',
-    initiator: 'Библиотека университета',
-    teamSize: '2-3 человека',
-    hasReward: true,
-    technologies: ['Kotlin', 'Android SDK', 'Firebase'],
-    description: 'Разработка приложения для учета книг в библиотеке с возможностью сканирования штрих-кодов'
-  },
-  {
-    id: 2,
-    title: 'Анализ успеваемости студентов',
-    category: 'Аналитика',
-    complexity: 'Высокая',
-    status: 'Открыта',
-    reward: 'Практика в деканате',
-    deadline: '20.01.2024',
-    initiator: 'Деканат факультета',
-    teamSize: '3-4 человека',
-    hasReward: true,
-    technologies: ['Python', 'Pandas', 'Matplotlib'],
-    description: 'Проведение анализа успеваемости студентов за последние 5 лет с визуализацией результатов'
-  },
-  {
-    id: 3,
-    title: 'Дизайн нового логотипа университета',
-    category: 'Дизайн',
-    complexity: 'Низкая',
-    status: 'В работе',
-    reward: 'Благодарность',
-    deadline: '05.12.2023',
-    initiator: 'Ректорат',
-    teamSize: '1-2 человека',
-    hasReward: false,
-    technologies: ['Figma', 'Photoshop'],
-    description: 'Создание современного логотипа университета в соответствии с новым брендбуком'
-  },
-  {
-    id: 4,
-    title: 'Автоматизация тестирования LMS системы',
-    category: 'Тестирование',
-    complexity: 'Средняя',
-    status: 'Открыта',
-    reward: 'Рекомендация',
-    deadline: '10.02.2024',
-    initiator: 'IT отдел',
-    teamSize: '2 человека',
-    hasReward: true,
-    technologies: ['Selenium', 'Python', 'JUnit'],
-    description: 'Написание автоматизированных тестов для системы дистанционного обучения'
-  },
-  {
-    id: 5,
-    title: 'Разработка чат-бота для абитуриентов',
-    category: 'Программирование',
-    complexity: 'Средняя',
-    status: 'Открыта',
-    reward: 'Денежная',
-    deadline: '28.02.2024',
-    initiator: 'Приемная комиссия',
-    teamSize: '3 человека',
-    hasReward: true,
-    technologies: ['Python', 'Telegram API', 'NLP'],
-    description: 'Создание интеллектуального чат-бота, отвечающего на вопросы абитуриентов'
-  },
-  {
-    id: 6,
-    title: 'Создание 3D модели кампуса',
-    category: 'Дизайн',
-    complexity: 'Высокая',
-    status: 'Открыта',
-    reward: 'Приглашение на работу',
-    deadline: '15.03.2024',
-    initiator: 'Архитектурный факультет',
-    teamSize: '4-5 человек',
-    hasReward: true,
-    technologies: ['Blender', 'Unity', '3D Max'],
-    description: 'Разработка детализированной 3D модели университетского кампуса для виртуальных экскурсий'
-  },
-  {
-    id: 7,
-    title: 'Оптимизация работы столовой',
-    category: 'Аналитика',
-    complexity: 'Средняя',
-    status: 'Открыта',
-    reward: 'Сертификат',
-    deadline: '10.01.2024',
-    initiator: 'Администрация',
-    teamSize: '2 человека',
-    hasReward: true,
-    technologies: ['Excel', 'Python', 'SQL'],
-    description: 'Анализ загруженности столовой и разработка рекомендаций по оптимизации очередей'
-  },
-  {
-    id: 8,
-    title: 'Разработка плагина для Moodle',
-    category: 'Программирование',
-    complexity: 'Высокая',
-    status: 'Открыта',
-    reward: 'Денежная',
-    deadline: '01.04.2024',
-    initiator: 'Кафедра информатики',
-    teamSize: '3-4 человека',
-    hasReward: true,
-    technologies: ['PHP', 'JavaScript', 'Moodle API'],
-    description: 'Создание плагина для автоматической проверки программистских заданий'
-  }
-]);
+// Загрузка идей при монтировании компонента
+onMounted(async () => {
+  await loadIdeas();
+});
 
-// Метод для отправки формы с использованием api
-const submitTask = async () => {
+async function loadIdeas() {
   try {
-    $q.loading.show();
-    
-    // Используем api для отправки данных
-    const response = await api.post('/api/tasks', newTaskForm.value);
-    console.log('Ответ сервера:', response.data);
-    
+    const data = await IdeaApi.getAllIdeas();
+    ideas.value = data;
+  } catch (error) {
+    console.error('Ошибка при загрузке идей:', error);
     $q.notify({
-      message: 'Идея проекта успешно отправлена!',
+      message: 'Не удалось загрузить идеи',
+      color: 'negative',
+    });
+  }
+}
+
+const submitTask = async (): Promise<boolean> => {
+  try {
+    $q.loading.show({ 
+      message: 'Создание идеи...'
+    });
+
+    const mainStore = useMainStore();
+    const currentUser = mainStore.getCurrentUser();
+
+    if (!currentUser?.id) {
+      throw new Error('Пользователь не авторизован');
+    }
+
+    const ideaData = {
+      name: newTaskForm.value.title,
+      problem: newTaskForm.value.description,
+      solution: newTaskForm.value.description || 'Решение не указано',
+      result: 'Ожидается результат',
+      resource: 'Ресурсы не указаны',
+      stack: newTaskForm.value.technologies || [],
+      category: newTaskForm.value.category,
+      deadline: newTaskForm.value.deadline || undefined
+    };
+
+    if (!ideaData.name || !ideaData.problem || !ideaData.category) {
+      throw new Error('Заполните название, описание и категорию');
+    }
+
+    const createdIdea = await IdeaApi.createIdea(ideaData);
+    
+    if (!createdIdea?.id) {
+      throw new Error('Не удалось создать идею');
+    }
+
+    // Форматируем дату для отображения
+    const formatDeadline = (dateStr?: string) => {
+      if (!dateStr) return undefined;
+      const date = new Date(dateStr);
+      return isNaN(date.getTime()) ? undefined : date.toISOString().split('T')[0];
+    };
+
+    const formattedIdea: Idea = {
+      ...createdIdea,
+      createdAt: new Date(createdIdea.createdAt),
+      deadline: formatDeadline(newTaskForm.value.deadline),
+      customer: {
+        id: currentUser.id,
+        name: `${currentUser.firstname} ${currentUser.lastname}`,
+        email: currentUser.email
+      },
+      category: newTaskForm.value.category
+    };
+
+    ideas.value.unshift(formattedIdea);
+
+    $q.notify({
+      message: 'Идея успешно создана!',
       color: 'positive',
-      icon: 'check_circle'
+      icon: 'check_circle',
+      position: 'top',
+      timeout: 2000
     });
-    
-    // Добавляем новую задачу в список
-    tasks.value.unshift({
-      ...newTaskForm.value,
-      id: Math.max(...tasks.value.map(t => t.id)) + 1,
-      status: 'Открыта'
-    });
-    
-    // Сбрасываем форму
+
+    // Сброс формы
     newTaskForm.value = {
       title: '',
       category: '',
@@ -524,29 +440,60 @@ const submitTask = async () => {
       reward: '',
       complexity: 'Средняя'
     };
+
+    return true;
+
+  } catch (error: unknown) {
+    console.error('Ошибка создания идеи:', error);
     
-  } catch (error) {
-    console.error('Ошибка при отправке идеи:', error);
+    let errorMessage = 'Ошибка при создании идеи';
+    
+    if (typeof error === 'object' && error !== null) {
+      const axiosError = error as { response?: { status?: number, data?: { message?: string } } };
+      if (axiosError.response?.status === 401) {
+        errorMessage = 'Требуется авторизация';
+      } else if (axiosError.response?.data?.message) {
+        errorMessage = axiosError.response.data.message;
+      } else if ('message' in error && typeof error.message === 'string') {
+        errorMessage = error.message;
+      }
+    }
+
     $q.notify({
-      message: 'Произошла ошибка при отправке идеи',
+      message: errorMessage,
       color: 'negative',
-      icon: 'error'
+      icon: 'error',
+      position: 'top',
+      timeout: 3000
     });
+
+    return false;
   } finally {
     $q.loading.hide();
   }
 };
 
+
+
+
 const onNewClick = async () => {
-  $q.dialog({
-    component: TaskEditForm,
-    componentProps: { 
-      new: true,
-      formData: newTaskForm.value,
-      onSubmit: submitTask
-    },
-  });
-};
+  try {
+    $q.dialog({
+      component: TaskEditForm,
+      componentProps: {
+        new: true,
+        formData: newTaskForm.value,
+        onSubmit: submitTask
+      }
+    })
+  } catch (error) {
+    console.error('Ошибка открытия диалога:', error)
+    $q.notify({
+      message: 'Не удалось открыть форму создания идеи',
+      color: 'negative'
+    })
+  }
+}
 
 // Остальные методы остаются без изменений
 const scrollToHowItWorks = () => {
@@ -564,19 +511,17 @@ const unhoverStep = (index: number) => {
   steps.value[index].hovered = false;
 };
 
-const showTaskDetails = (task: Task) => {
+const showTaskDetails = (idea: Idea) => {
   $q.dialog({
-    title: task.title,
+    title: idea.name,
     message: `
-      <div><strong>Категория:</strong> ${task.category}</div>
-      <div><strong>Инициатор:</strong> ${task.initiator}</div>
-      <div><strong>Сложность:</strong> ${task.complexity}</div>
-      <div><strong>Статус:</strong> ${task.status}</div>
-      <div><strong>Награда:</strong> ${task.reward}</div>
-      <div><strong>Размер команды:</strong> ${task.teamSize}</div>
-      <div><strong>Технологии:</strong> ${task.technologies.join(', ')}</div>
-      <div><strong>Срок выполнения:</strong> ${task.deadline}</div>
-      <div class="q-mt-md"><strong>Описание:</strong> ${task.description}</div>
+      <div><strong>Описание проблемы:</strong> ${idea.problem}</div>
+      <div><strong>Предлагаемое решение:</strong> ${idea.solution}</div>
+      <div><strong>Ожидаемый результат:</strong> ${idea.result}</div>
+      <div><strong>Необходимые ресурсы:</strong> ${idea.resource}</div>
+      <div><strong>Технологии:</strong> ${idea.stack.join(', ')}</div>
+      <div><strong>Статус:</strong> ${idea.status}</div>
+      <div><strong>Дата создания:</strong> ${idea.createdAt.toLocaleDateString()}</div>
     `,
     html: true,
     ok: {
@@ -586,97 +531,42 @@ const showTaskDetails = (task: Task) => {
   });
 };
 
-const takeTask = (task: Task) => {
+const takeTask = (idea: Idea) => {
   $q.notify({
-    message: `Вы взяли задачу "${task.title}"`,
+    message: `Вы взяли задачу "${idea.name}"`,
     color: 'positive',
     icon: 'check_circle'
   });
 };
 
 const resetFilters = () => {
+  searchText.value = '';
   selectedInitiator.value = null;
-  selectedStack.value = [];
+  selectedStack.value = null;
   selectedStatus.value = null;
   selectedTeamSize.value = null;
   selectedHasReward.value = null;
   selectedCategory.value = null;
   selectedComplexity.value = null;
-  selectedReward.value = null;
   deadlineFrom.value = null;
-  searchText.value = '';
 };
-// Вычисляемое свойство для фильтрации задач
-const filteredTasks = computed(() => {
-  return tasks.value.filter(task => {
-    // Фильтрация по инициатору
-    if (selectedInitiator.value && selectedInitiator.value !== 'Все' && 
-        task.initiator !== selectedInitiator.value) {
+
+// Вычисляемое свойство для фильтрации идей
+const filteredIdeas = computed(() => {
+  return ideas.value.filter((idea: Idea) => {
+    // Фильтрация по поисковому тексту
+    if (searchText.value && !idea.name.toLowerCase().includes(searchText.value.toLowerCase())) {
       return false;
     }
-    
-    // Filter by status
-    if (selectedStatus.value && selectedStatus.value !== 'Все' && 
-        task.status !== selectedStatus.value) {
+
+    // Добавьте другие фильтры по мере необходимости
+    // Например, фильтрация по статусу:
+    if (selectedStatus.value && idea.status !== selectedStatus.value) {
       return false;
     }
-    
-    // Filter by team size
-    if (selectedTeamSize.value && selectedTeamSize.value !== 'Все' && 
-        task.teamSize !== selectedTeamSize.value) {
-      return false;
-    }
-    
-    // Filter by has reward
-    if (selectedHasReward.value && selectedHasReward.value !== 'Все') {
-      const rewardExpected = selectedHasReward.value === 'Да';
-      if (task.hasReward !== rewardExpected) {
-        return false;
-      }
-    }
-    
-    // Filter by category
-    if (selectedCategory.value && selectedCategory.value !== 'Все' && 
-        task.category !== selectedCategory.value) {
-      return false;
-    }
-    
-    // Filter by complexity
-    if (selectedComplexity.value && selectedComplexity.value !== 'Все' && 
-        task.complexity !== selectedComplexity.value) {
-      return false;
-    }
-    
-    // Filter by reward type
-    if (selectedReward.value && selectedReward.value !== 'Все' && 
-        task.reward !== selectedReward.value) {
-      return false;
-    }
-    
-    // Filter by stack
-    if (selectedStack.value.length > 0) {
-      const hasAllSelectedTech = selectedStack.value.every((tech: string) => 
-        task.technologies.includes(tech)
-      );
-      if (!hasAllSelectedTech) {
-        return false;
-      }
-    }
-    
-    // Filter by deadline
-    if (deadlineFrom.value) {
-      const taskDate = new Date(task.deadline.split('.').reverse().join('-'));
-      const filterDate = new Date(deadlineFrom.value);
-      if (taskDate < filterDate) {
-        return false;
-      }
-    }
-    
-    // Filter by search text
-    if (searchText.value && !task.title.toLowerCase().includes(searchText.value.toLowerCase())) {
-      return false;
-    }
-    
+
+    // Добавьте аналогичные проверки для других фильтров
+
     return true;
   });
 });
@@ -708,12 +598,14 @@ onMounted(() => {
   const howItWorksSection = document.getElementById('how-it-works');
   const tasksSection = document.getElementById('tasks');
   const becomeCustomerSection = document.getElementById('become-customer');
-  
+
   if (howItWorksSection) observer.observe(howItWorksSection);
   if (tasksSection) observer.observe(tasksSection);
   if (becomeCustomerSection) observer.observe(becomeCustomerSection);
 });
 </script>
+
+
 
 <style scoped>
 .task-bank-page {
