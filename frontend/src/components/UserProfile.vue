@@ -4,8 +4,8 @@
       <!-- Аватар и основная информация -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-          <img 
-            :src="user.avatar || defaultAvatar" 
+          <img
+            :src="user.avatar || defaultAvatar"
             alt="Аватар"
             class="avatar"
           >
@@ -16,8 +16,8 @@
             accept="image/*"
             style="display: none"
           >
-          <button 
-            class="avatar-edit-btn" 
+          <button
+            class="avatar-edit-btn"
             @click="triggerFileInput"
             v-tooltip="'Изменить аватар'"
           >
@@ -35,8 +35,8 @@
       <div class="info-section">
         <div class="section-header">
           <h2>Личные данные</h2>
-          <button 
-            class="edit-toggle-btn" 
+          <button
+            class="edit-toggle-btn"
             @click="toggleEditMode"
             v-tooltip="editMode ? 'Сохранить изменения' : 'Редактировать контакты'"
           >
@@ -48,32 +48,32 @@
         <div class="info-grid">
           <div class="info-item">
             <label><i class="fas fa-user-tag"></i> Фамилия</label>
-            <input 
-              v-model="user.lastName" 
-              disabled
+            <input
+              v-model="user.lastName"
+              :disabled="!editMode"
               class="info-input"
             >
           </div>
           <div class="info-item">
             <label><i class="fas fa-user"></i> Имя</label>
-            <input 
-              v-model="user.firstName" 
-              disabled
+            <input
+              v-model="user.firstName"
+              :disabled="!editMode"
               class="info-input"
             >
           </div>
           <div class="info-item">
             <label><i class="fas fa-users"></i> Группа</label>
-            <input 
-              v-model="user.group" 
+            <input
+              v-model="user.group"
               disabled
               class="info-input"
             >
           </div>
           <div class="info-item">
             <label><i class="fas fa-envelope"></i> Email</label>
-            <input 
-              v-model="user.email" 
+            <input
+              v-model="user.email"
               :disabled="!editMode"
               class="info-input"
               type="email"
@@ -82,8 +82,8 @@
           </div>
           <div class="info-item">
             <label><i class="fas fa-phone"></i> Телефон</label>
-            <input 
-              v-model="user.phone" 
+            <input
+              v-model="user.phone"
               :disabled="!editMode"
               class="info-input"
               type="tel"
@@ -374,9 +374,12 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import Multiselect from 'vue-multiselect';
 import { useToast } from 'vue-toastification';
+import { useMainStore } from '../stores/main-store';
+import * as usersApi from '../api/users.api';
 import 'vue-toastification/dist/index.css';
 
 const toast = useToast();
+const mainStore = useMainStore();
 
 // Состояния
 const editMode = ref(false);
@@ -391,16 +394,25 @@ const experienceFileInput = ref(null);
 // Данные пользователя
 const defaultAvatar = ref('https://www.gravatar.com/avatar/default?s=200&d=mp');
 const user = reactive({
-  avatar: localStorage.getItem('userAvatar') || '',
-  firstName: 'Иван',
-  lastName: 'Иванов',
+  id: 0,
+  avatar: '',
+  firstName: '',
+  lastName: '',
   fullName: computed(() => `${user.firstName} ${user.lastName}`),
-  role: 'Студент',
-  group: 'ИТ-41',
-  email: 'ivanov@std.tyuiu.ru',
-  phone: '+7 (123) 456-78-90',
+  role: '',
+  group: '',
+  email: '',
+  phone: '',
   experience: '',
-  languages: [],
+  yearsOfExperience: 0,
+  projectsCompleted: 0,
+  technologies: [],
+  personalQualities: {
+    communication: 0,
+    teamwork: 0,
+    leadership: 0,
+    reliability: 0
+  },
   experienceFiles: []
 });
 
@@ -420,23 +432,23 @@ const allLanguages = [
 
 // Фильтрация доступных языков для добавления
 const filteredLanguages = computed(() => {
-  return allLanguages.filter(lang => !user.languages.includes(lang));
+  return allLanguages.filter(lang => !user.technologies.includes(lang));
 });
 
 const selectedLanguage = ref(null);
 
 // Вычисляемые свойства для категорий
 const frontendLanguages = computed(() => 
-  user.languages.filter(lang => techCategories.frontend.includes(lang))
+  user.technologies.filter(lang => techCategories.frontend.includes(lang))
 );
 const backendLanguages = computed(() => 
-  user.languages.filter(lang => techCategories.backend.includes(lang))
+  user.technologies.filter(lang => techCategories.backend.includes(lang))
 );
 const databaseLanguages = computed(() => 
-  user.languages.filter(lang => techCategories.database.includes(lang))
+  user.technologies.filter(lang => techCategories.database.includes(lang))
 );
 const otherLanguages = computed(() => 
-  user.languages.filter(lang => 
+  user.technologies.filter(lang => 
     !techCategories.frontend.includes(lang) &&
     !techCategories.backend.includes(lang) &&
     !techCategories.database.includes(lang)
@@ -444,70 +456,77 @@ const otherLanguages = computed(() =>
 );
 
 // Проекты
-const portfolio = ref([
-  {
-    name: 'Умный дом',
-    team: 'Команда "Технологии"',
-    status: 'В разработке',
-    role: 'Фронтенд-разработчик',
-    customer: 'ООО "Умные системы"',
-    description: 'Разработка системы управления умным домом через мобильное приложение и веб-интерфейс',
-    timeline: 'Сентябрь 2023 - Май 2024',
-    teamMembers: [
-      { name: 'Иван Иванов', role: 'Фронтенд' },
-      { name: 'Петр Петров', role: 'Бэкенд' },
-      { name: 'Сергей Сергеев', role: 'Дизайн' }
-    ],
-    technologies: ['Vue.js', 'Node.js', 'MongoDB']
-  },
-  {
-    name: 'Мобильное приложение',
-    team: 'Команда "Инновации"',
-    status: 'Завершен',
-    role: 'Дизайнер интерфейсов',
-    customer: 'ИП Сидоров А.А.',
-    description: 'Создание мобильного приложения для учета личных финансов',
-    timeline: 'Январь 2023 - Август 2023',
-    teamMembers: [
-      { name: 'Иван Иванов', role: 'Дизайн' },
-      { name: 'Алексей Алексеев', role: 'Разработка' }
-    ],
-    technologies: ['React Native', 'Firebase']
-  }
-]);
+const portfolio = ref([]);
 
 // Методы
-const toggleEditMode = () => {
+const toggleEditMode = async () => {
   if (editMode.value) {
-    // Сохраняем изменения
-    localStorage.setItem('userEmail', user.email);
-    localStorage.setItem('userPhone', user.phone);
-    toast.success('Контактные данные сохранены');
+    try {
+      // Сохраняем изменения в профиле
+      const updateData = {
+        firstname: user.firstName,
+        lastname: user.lastName,
+        email: user.email,
+        telephone: user.phone,
+        group: user.group
+      };
+      
+      const updatedUser = await usersApi.updateProfile(user.id, updateData);
+      if (updatedUser) {
+        toast.success('Контактные данные сохранены');
+        // Обновляем данные в хранилище
+        mainStore.initAppState({
+          userId: updatedUser.id,
+          username: updatedUser.email,
+          firstname: updatedUser.firstname,
+          lastname: updatedUser.lastname,
+          roles: updatedUser.roles
+        });
+      }
+    } catch (error) {
+      toast.error('Ошибка при сохранении данных');
+      console.error(error);
+    }
   }
   editMode.value = !editMode.value;
 };
 
-const toggleSkillsEditMode = () => {
+const toggleSkillsEditMode = async () => {
   if (editSkillsMode.value) {
-    // Сохраняем изменения
-    localStorage.setItem('userLanguages', JSON.stringify(user.languages));
-    localStorage.setItem('userExperience', user.experience);
-    localStorage.setItem('userExperienceFiles', JSON.stringify(user.experienceFiles));
-    toast.success('Изменения в компетенциях сохранены');
+    try {
+      // Сохраняем изменения в компетенциях
+      const updateData = {
+        yearsOfExperience: user.yearsOfExperience,
+        projectsCompleted: user.projectsCompleted,
+        technologies: user.technologies,
+        communicationSkill: user.personalQualities.communication,
+        teamworkSkill: user.personalQualities.teamwork,
+        leadershipSkill: user.personalQualities.leadership,
+        reliabilitySkill: user.personalQualities.reliability
+      };
+      
+      const updatedUser = await usersApi.updateProfile(user.id, updateData);
+      if (updatedUser) {
+        toast.success('Изменения в компетенциях сохранены');
+      }
+    } catch (error) {
+      toast.error('Ошибка при сохранении компетенций');
+      console.error(error);
+    }
   }
   editSkillsMode.value = !editSkillsMode.value;
 };
 
 const addLanguage = (lang) => {
-  if (lang && !user.languages.includes(lang)) {
-    user.languages.push(lang);
+  if (lang && !user.technologies.includes(lang)) {
+    user.technologies.push(lang);
     selectedLanguage.value = null;
     toast.success(`Технология "${lang}" добавлена`);
   }
 };
 
 const removeLanguage = (lang) => {
-  user.languages = user.languages.filter(l => l !== lang);
+  user.technologies = user.technologies.filter(l => l !== lang);
   toast.info(`Технология "${lang}" удалена`);
 };
 
@@ -544,20 +563,15 @@ const handleAvatarChange = async (e) => {
   avatarUploading.value = true;
 
   try {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      user.avatar = event.target.result;
-      localStorage.setItem('userAvatar', user.avatar);
+    const avatarPath = await usersApi.uploadAvatar(user.id, file);
+    if (avatarPath) {
+      user.avatar = avatarPath;
       toast.success('Аватар успешно обновлен');
-      avatarUploading.value = false;
-    };
-    reader.onerror = () => {
-      toast.error('Ошибка при чтении файла');
-      avatarUploading.value = false;
-    };
-    reader.readAsDataURL(file);
+    }
   } catch (error) {
     toast.error('Ошибка при загрузке аватарки');
+    console.error(error);
+  } finally {
     avatarUploading.value = false;
   }
 };
@@ -567,6 +581,7 @@ const triggerExperienceFileInput = () => {
 };
 
 const handleExperienceFileChange = (e) => {
+  // Остается без изменений, так как это локальная функциональность
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
 
@@ -637,18 +652,47 @@ const toggleProjectDetails = (index) => {
 };
 
 // Загрузка данных пользователя
+const loadUserData = async () => {
+  try {
+    const currentUser = mainStore.getCurrentUser();
+    if (!currentUser) return;
+    
+    user.id = currentUser.id;
+    user.firstName = currentUser.firstname;
+    user.lastName = currentUser.lastname;
+    user.email = currentUser.email;
+    user.role = currentUser.roles.includes('admin') ? 'Администратор' : 'Пользователь';
+    
+    // Загружаем полный профиль с бэкенда
+    const userProfile = await usersApi.getProfile(user.id);
+    if (userProfile) {
+      user.phone = userProfile.telephone || '';
+      user.group = userProfile.group || '';
+      user.avatar = userProfile.avatarPath || '';
+      
+      if (userProfile.experience) {
+        user.yearsOfExperience = userProfile.experience.years || 0;
+        user.projectsCompleted = userProfile.experience.projectsCompleted || 0;
+        user.technologies = userProfile.experience.technologies || [];
+      }
+      
+      if (userProfile.personalQualities) {
+        user.personalQualities = {
+          communication: userProfile.personalQualities.communication || 0,
+          teamwork: userProfile.personalQualities.teamwork || 0,
+          leadership: userProfile.personalQualities.leadership || 0,
+          reliability: userProfile.personalQualities.reliability || 0
+        };
+      }
+    }
+  } catch (error) {
+    toast.error('Ошибка при загрузке данных профиля');
+    console.error(error);
+  }
+};
+
 onMounted(() => {
-  const savedEmail = localStorage.getItem('userEmail');
-  const savedPhone = localStorage.getItem('userPhone');
-  const savedLanguages = localStorage.getItem('userLanguages');
-  const savedExperience = localStorage.getItem('userExperience');
-  const savedFiles = localStorage.getItem('userExperienceFiles');
-  
-  if (savedEmail) user.email = savedEmail;
-  if (savedPhone) user.phone = savedPhone;
-  if (savedLanguages) user.languages = JSON.parse(savedLanguages);
-  if (savedExperience) user.experience = savedExperience;
-  if (savedFiles) user.experienceFiles = JSON.parse(savedFiles);
+  loadUserData();
 });
 </script>
 

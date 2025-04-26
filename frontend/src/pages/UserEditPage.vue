@@ -7,63 +7,63 @@
     </div>
 
     <q-form @submit.prevent="onSave" class="q-gutter-md">
-      <q-input 
-        v-model="email" 
-        label="Email" 
+      <q-input
+        v-model="email"
+        label="Email"
         dense
         outlined
         :rules="[val => !!val || 'Обязательное поле', val => /.+@.+\..+/.test(val) || 'Некорректный email']"
       />
 
-      <q-input 
-        v-model="firstname" 
-        label="Имя" 
+      <q-input
+        v-model="firstname"
+        label="Имя"
         dense
         outlined
         :rules="[val => !!val || 'Обязательное поле']"
       />
 
-      <q-input 
-        v-model="lastname" 
-        label="Фамилия" 
+      <q-input
+        v-model="lastname"
+        label="Фамилия"
         dense
         outlined
         :rules="[val => !!val || 'Обязательное поле']"
       />
 
-      <q-input 
-        v-if="mode === 'new'" 
-        v-model="password" 
-        type="password" 
-        label="Пароль" 
+      <q-input
+        v-if="mode === 'new'"
+        v-model="password"
+        type="password"
+        label="Пароль"
         dense
         outlined
         :rules="[val => val.length >= 6 || 'Минимум 6 символов']"
       />
 
-      <q-select 
-        v-model="roles" 
-        multiple 
-        use-chips 
-        :options="availableRoles" 
-        label="Роли" 
+      <q-select
+        v-model="roles"
+        multiple
+        use-chips
+        :options="availableRoles"
+        label="Роли"
         outlined
         dense
       />
 
-      <q-select 
-        v-model="status" 
-        :options="availableStatuses" 
-        label="Статус" 
+      <q-select
+        v-model="status"
+        :options="availableStatuses"
+        label="Статус"
         outlined
         dense
       />
 
       <div class="text-center q-mt-lg">
-        <q-btn 
-          type="submit" 
-          color="positive" 
-          label="Сохранить" 
+        <q-btn
+          type="submit"
+          color="positive"
+          label="Сохранить"
           :loading="loading"
         />
       </div>
@@ -75,13 +75,13 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { 
-  CreateUserDto, 
-  UpdateUserDto, 
-  Role, 
-  UserAccountStatus 
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  Role,
+  UserAccountStatus
 } from '../../../backend/src/common/types';
-import * as api from '../api/users.api';
+import usersApi from '../api/users.api'; // Импортируем usersApi
 
 const $q = useQuasar();
 const route = useRoute();
@@ -103,8 +103,8 @@ const status = ref<UserAccountStatus>(UserAccountStatus.active);
 // Available options
 const availableRoles = [Role.admin, Role.user];
 const availableStatuses = [
-  UserAccountStatus.active, 
-  UserAccountStatus.inactive, 
+  UserAccountStatus.active,
+  UserAccountStatus.inactive,
   UserAccountStatus.pending
 ];
 
@@ -119,9 +119,9 @@ onMounted(async () => {
 
 const loadUserData = async () => {
   if (!userId.value) return;
-  
+
   try {
-    const user = await api.get(userId.value);
+    const user = await usersApi.get(userId.value);
     if (user) {
       email.value = user.email;
       firstname.value = user.firstname;
@@ -140,7 +140,7 @@ const loadUserData = async () => {
 
 const onSave = async () => {
   loading.value = true;
-  
+
   try {
     if (mode.value === 'new') {
       const newUser: CreateUserDto = {
@@ -152,7 +152,7 @@ const onSave = async () => {
         status: status.value
       };
 
-      const createdUser = await api.create(newUser);
+      const createdUser = await usersApi.create(newUser);
       if (createdUser) {
         userId.value = createdUser.id;
         mode.value = 'update';
@@ -172,7 +172,7 @@ const onSave = async () => {
         status: status.value
       };
 
-      const response = await api.update(userId.value, updatedUser);
+      const response = await usersApi.update(userId.value, updatedUser);
       if (response) {
         $q.notify({
           message: 'Изменения сохранены',

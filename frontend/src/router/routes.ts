@@ -7,8 +7,9 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
       { path: 'users', component: () => import('pages/UsersPage.vue') },
-      { path: 'gallery', component: () => import('pages/ProjectsPage.vue') }, // Добавьте этот маршрут
+      { path: 'gallery', component: () => import('pages/ProjectsPage.vue') },
       { path: 'users/:id', component: () => import('pages/UserEditPage.vue') },
+      { path: 'profile', component: () => import('components/UserProfile.vue') }, // Добавляем маршрут профиля
       { path: 'tasks', component: () => import('pages/TasksPage.vue') },
       { path: 'teams', component: () => import('pages/TeamsPage.vue') },
     ],
@@ -23,9 +24,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/ServiceLayout.vue'),
     children: [{ path: '', component: () => import('pages/SignupPage.vue') }],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),

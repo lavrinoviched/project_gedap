@@ -100,7 +100,7 @@ export class User {
   team: Team;
 
   getSecuredDto(): SecuredUser {
-    return {
+    const result: any = { // Используем any для временного обхода проверки типов
       id: this.id,
       email: this.email,
       firstname: this.firstname,
@@ -111,8 +111,14 @@ export class User {
       experience: this.experience,
       technologies: this.technologies,
       personalQualities: this.personalQualities,
-      group: this.group,
       telephone: this.telephone
     };
+  
+    // Для админа не возвращаем группу
+    if (!this.roles.includes(Role.admin)) {
+      result.group = this.group;
+    }
+  
+    return result as SecuredUser; // Приводим к типу SecuredUser
   }
 }

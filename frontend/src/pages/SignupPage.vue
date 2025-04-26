@@ -95,32 +95,47 @@ const onReturn = () => {
 };
 
 const onSignUp = async () => {
-  let response;
+  // Валидация полей
+  if (!inputs.value[0].value || !inputs.value[1].value || 
+      !inputs.value[2].value || !inputs.value[3].value) {
+    $q.notify({
+      message: 'Ошибка',
+      caption: 'Все поля обязательны для заполнения',
+      color: 'red',
+      icon: 'error'
+    });
+    return;
+  }
 
   try {
-    response = await api.signup({
+    const result = await api.signup({
       username: inputs.value[0].value,
       password: inputs.value[1].value,
       firstname: inputs.value[2].value,
       lastname: inputs.value[3].value
     });
-  } catch {
-    console.log('Signup failed');
-  }
 
-  if (response && response.success) {
+    if (result.success) {
+      $q.notify({
+        message: 'Успешно',
+        caption: 'Пользователь успешно создан. Ожидайте активации.',
+        color: 'green',
+        icon: 'verified'
+      });
+      router.push('/login');
+    } else {
+      $q.notify({
+        message: 'Ошибка',
+        caption: result.message || 'Не удалось создать пользователя',
+        color: 'red',
+        icon: 'error'
+      });
+    }
+  } catch (error) {
+    console.error('Signup error:', error);
     $q.notify({
-      message: 'Пользователь успешно создан',
-      caption: 'Ожидайте активации пользователя администратором.',
-      color: 'green',
-      icon: 'verified'
-    });
-
-    router.push({ path: '/login' });
-  } else {
-    $q.notify({
-      message: 'Создать пользователя не удалось',
-      caption: 'Возможно, пользователь с таким логином уже существует. Попробуйте другой.',
+      message: 'Ошибка',
+      caption: 'Произошла непредвиденная ошибка',
       color: 'red',
       icon: 'error'
     });

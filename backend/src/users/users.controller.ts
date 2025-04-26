@@ -9,17 +9,18 @@ import {
   Put,
   UploadedFile,
   UseGuards,
+  Request,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/roles.decorator';
-import { 
-  CreateUserDto, 
-  Role, 
-  UpdateUserDto, 
-  UpdateProfileDto, 
+import {
+  CreateUserDto,
+  Role,
+  UpdateUserDto,
+  UpdateProfileDto,
   UserAccountStatus
 } from 'src/common/types';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -59,6 +60,13 @@ export class UsersController {
     return this.usersService.setStatus(id, body.value);
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getCurrentUser(@Request() req) {
+    const user = await this.usersService.findOneById(req.user.id);
+    if (user) return user.getSecuredDto();
+  }
+
   // Методы работы с профилем
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -83,15 +91,15 @@ export class UsersController {
   }
 
   @Post(':id/avatar')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('avatar'))
-  async uploadAvatar(
-    @Param('id') id: number,
-    @UploadedFile() avatar: Express.Multer.File,
-  ) {
-    const avatarPath = `/uploads/avatars/${avatar.filename}`;
-    return this.usersService.updateProfile(id, { avatarPath });
-  }
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(FileInterceptor('avatar'))
+async uploadAvatar(
+  @Param('id') id: number,
+  @UploadedFile() avatar: Express.Multer.File,
+) {
+  const avatarPath = `/uploads/avatars/${avatar.filename}`;
+  return this.usersService.updateProfile(id, { avatarPath });
+}
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)

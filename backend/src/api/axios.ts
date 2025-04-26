@@ -1,9 +1,8 @@
 import axios from 'axios';
 
- 
+const api = axios.create({
+  baseURL: 'http://localhost:9000', // Убедитесь, что базовый URL корректен
+  withCredentials: true,
+});
 
-const api = axios.create({ baseURL: process.env.API_ENDPOINT });
-
- 
-
-export { axios, api };
+export default api;

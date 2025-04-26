@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Role, UpdateUserDto, UserAccountStatus, UpdateProfileDto, Technology, TechnologyName } from 'src/common/types';
+import { Role, UpdateUserDto, UserAccountStatus, UpdateProfileDto, TechnologyName } from 'src/common/types';
 import { User } from 'src/orm/user.entity';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class UsersService {
   // Profile management methods
   async updateProfile(userId: number, dto: UpdateProfileDto): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -111,12 +111,24 @@ export class UsersService {
         'personalQualities',
         'roles',
         'status',
-        'technologies'
       ],
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    // Для админа возвращаем только базовую информацию
+    if (user.roles.includes(Role.admin)) {
+      return {
+        id: user.id,
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        telephone: user.telephone,
+        roles: user.roles,
+        status: user.status,
+      };
     }
 
     return user;
@@ -125,26 +137,26 @@ export class UsersService {
   // Technology methods
   async addTechnologiesToUser(userId: number, techNames: TechnologyName[]): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     user.experience = user.experience || { years: 0, projectsCompleted: 0, technologies: [] };
     const existingTech = user.experience.technologies || [];
-    
+
     // Add only new technologies, avoiding duplicates
     const newTechnologies = techNames.filter(
       tech => !existingTech.includes(tech)
     );
-    
+
     user.experience.technologies = [...existingTech, ...newTechnologies];
     return this.userRepository.save(user);
   }
 
   async removeTechnologiesFromUser(userId: number, techNames: TechnologyName[]): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -154,7 +166,7 @@ export class UsersService {
         tech => !techNames.includes(tech)
       );
     }
-    
+
     return this.userRepository.save(user);
   }
 
@@ -178,7 +190,7 @@ export class UsersService {
 
   async update(id: number, updatedUserData: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
