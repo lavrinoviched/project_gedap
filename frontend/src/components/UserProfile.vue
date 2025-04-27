@@ -4,29 +4,36 @@
       <!-- Аватар и основная информация -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-          <img
-            :src="user.avatar || defaultAvatar"
-            alt="Аватар"
-            class="avatar"
-          >
-          <input
-            type="file"
-            ref="fileInput"
-            @change="handleAvatarChange"
-            accept="image/*"
-            style="display: none"
-          >
-          <button
-            class="avatar-edit-btn"
-            @click="triggerFileInput"
-            v-tooltip="'Изменить аватар'"
-          >
-            <i class="fas fa-camera"></i>
-          </button>
-          <div v-if="avatarUploading" class="upload-progress">
-            <i class="fas fa-spinner fa-spin"></i>
-          </div>
-        </div>
+    <img
+      :src="avatarUrl"
+      alt="Аватар"
+      class="avatar"
+      @error="avatarUrl = defaultAvatar"
+    >
+    <input
+      type="file"
+      ref="fileInput"
+      @change="handleAvatarChange"
+      accept="image/*"
+      style="display: none"
+    >
+    <button
+      class="avatar-edit-btn"
+      @click="fileInput.click()"
+    >
+      <i class="fas fa-camera"></i>
+    </button>
+    <button
+      v-if="avatarUrl && avatarUrl !== defaultAvatar"
+      class="avatar-remove-btn"
+      @click="removeAvatar"
+    >
+      <i class="fas fa-trash"></i>
+    </button>
+    <div v-if="avatarUploading" class="upload-progress">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+  </div>
         <h1 class="profile-title">{{ user.fullName }}</h1>
         <p class="profile-role">{{ user.role }}</p>
       </div>
@@ -62,7 +69,7 @@
               class="info-input"
             >
           </div>
-          <div class="info-item">
+          <div class="info-item" v-if="!isAdmin">
             <label><i class="fas fa-users"></i> Группа</label>
             <input
               v-model="user.group"
@@ -93,8 +100,8 @@
         </div>
       </div>
 
-      <!-- Секция компетенций -->
-      <div class="skills-section">
+      <!-- Секция компетенций (только для обычных пользователей) -->
+      <div class="skills-section" v-if="!isAdmin">
         <div class="section-header">
           <h2>Мои компетенции</h2>
           <button 
@@ -279,8 +286,8 @@
         </div>
       </div>
 
-      <!-- Секция проектов -->
-      <div class="projects-section">
+      <!-- Секция проектов (только для обычных пользователей) -->
+      <div class="projects-section" v-if="!isAdmin">
         <div class="section-header">
           <h2><i class="fas fa-project-diagram"></i> Мои проекты</h2>
         </div>
@@ -366,6 +373,22 @@
           </div>
         </div>
       </div>
+
+      <!-- Админ панель (только для администраторов) -->
+      <div class="admin-section" v-if="isAdmin">
+        <div class="section-header">
+          <h2><i class="fas fa-user-shield"></i> Админ панель</h2>
+        </div>
+        
+        <div class="admin-actions">
+          <button class="admin-btn" @click="navigateToApplications">
+            <i class="fas fa-clipboard-list"></i> Заявки
+          </button>
+          <button class="admin-btn" @click="navigateToUserManagement">
+            <i class="fas fa-users-cog"></i> Управление пользователями
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -376,16 +399,23 @@ import Multiselect from 'vue-multiselect';
 import { useToast } from 'vue-toastification';
 import { useMainStore } from '../stores/main-store';
 import * as usersApi from '../api/users.api';
+import { useRouter } from 'vue-router';
 import 'vue-toastification/dist/index.css';
 
 const toast = useToast();
 const mainStore = useMainStore();
+const router = useRouter();
+
+// Проверка на администратора
+const isAdmin = computed(() => mainStore.isAdmin());
 
 // Состояния
 const editMode = ref(false);
 const editSkillsMode = ref(false);
 const selectedProject = ref(null);
 const avatarUploading = ref(false);
+const avatarUrl = ref('');
+
 
 // Рефы
 const fileInput = ref(null);
@@ -456,7 +486,36 @@ const otherLanguages = computed(() =>
 );
 
 // Проекты
-const portfolio = ref([]);
+const portfolio = ref([
+  {
+    name: 'Проект 1',
+    status: 'В разработке',
+    team: 'Команда А',
+    role: 'Разработчик',
+    timeline: 'Январь 2023 - настоящее время',
+    description: 'Описание проекта 1. Это более подробное описание проекта, которое может быть довольно длинным.',
+    customer: 'Клиент А',
+    teamMembers: [
+      { name: 'Иван Иванов', role: 'Тимлид' },
+      { name: 'Петр Петров', role: 'Дизайнер' }
+    ],
+    technologies: ['Vue.js', 'Node.js', 'MongoDB']
+  },
+  {
+    name: 'Проект 2',
+    status: 'Завершен',
+    team: 'Команда Б',
+    role: 'Фронтенд разработчик',
+    timeline: 'Март 2022 - Декабрь 2022',
+    description: 'Описание проекта 2. Это более подробное описание проекта, которое может быть довольно длинным.',
+    customer: 'Клиент Б',
+    teamMembers: [
+      { name: 'Сергей Сергеев', role: 'Бэкенд разработчик' },
+      { name: 'Алексей Алексеев', role: 'Тестировщик' }
+    ],
+    technologies: ['React', 'Python', 'PostgreSQL']
+  }
+]);
 
 // Методы
 const toggleEditMode = async () => {
@@ -468,7 +527,8 @@ const toggleEditMode = async () => {
         lastname: user.lastName,
         email: user.email,
         telephone: user.phone,
-        group: user.group
+        group: user.group,
+        avatarPath: user.avatar // Добавляем аватар в данные для обновления
       };
       
       const updatedUser = await usersApi.updateProfile(user.id, updateData);
@@ -480,7 +540,8 @@ const toggleEditMode = async () => {
           username: updatedUser.email,
           firstname: updatedUser.firstname,
           lastname: updatedUser.lastname,
-          roles: updatedUser.roles
+          roles: updatedUser.roles,
+          avatar: updatedUser.avatarPath
         });
       }
     } catch (error) {
@@ -546,6 +607,19 @@ const triggerFileInput = () => {
   fileInput.value.click();
 };
 
+
+
+// Вычисляем URL аватара с timestamp
+const getAvatarUrl = (path) => {
+  if (!path) return defaultAvatar.value;
+  return `${path}?${Date.now()}`;
+};
+
+// Обработчик ошибки загрузки изображения
+const handleImageError = () => {
+  avatarUrl.value = defaultAvatar.value;
+};
+
 const handleAvatarChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -565,7 +639,15 @@ const handleAvatarChange = async (e) => {
   try {
     const avatarPath = await usersApi.uploadAvatar(user.id, file);
     if (avatarPath) {
-      user.avatar = avatarPath;
+      // Обновляем URL с timestamp для предотвращения кэширования
+      avatarUrl.value = `${avatarPath}?${Date.now()}`;
+      
+      // Обновляем данные пользователя
+      const currentUser = mainStore.getCurrentUser();
+      if (currentUser) {
+        currentUser.avatar = avatarPath;
+      }
+      
       toast.success('Аватар успешно обновлен');
     }
   } catch (error) {
@@ -576,12 +658,32 @@ const handleAvatarChange = async (e) => {
   }
 };
 
+const removeAvatar = async () => {
+  try {
+    await usersApi.updateProfile(user.id, { avatarPath: null });
+    avatarUrl.value = defaultAvatar.value;
+    
+    const currentUser = mainStore.getCurrentUser();
+    if (currentUser) {
+      currentUser.avatar = '';
+    }
+    
+    toast.success('Аватар успешно удален');
+  } catch (error) {
+    toast.error('Ошибка при удалении аватарки');
+    console.error(error);
+  }
+};
+
+onMounted(() => {
+  loadUserData();
+});
+
 const triggerExperienceFileInput = () => {
   experienceFileInput.value.click();
 };
 
 const handleExperienceFileChange = (e) => {
-  // Остается без изменений, так как это локальная функциональность
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
 
@@ -651,6 +753,14 @@ const toggleProjectDetails = (index) => {
   selectedProject.value = selectedProject.value === index ? null : index;
 };
 
+const navigateToApplications = () => {
+  router.push('/admin/applications');
+};
+
+const navigateToUserManagement = () => {
+  router.push('/admin/users');
+};
+
 // Загрузка данных пользователя
 const loadUserData = async () => {
   try {
@@ -661,33 +771,20 @@ const loadUserData = async () => {
     user.firstName = currentUser.firstname;
     user.lastName = currentUser.lastname;
     user.email = currentUser.email;
-    user.role = currentUser.roles.includes('admin') ? 'Администратор' : 'Пользователь';
+    user.role = isAdmin.value ? 'Администратор' : 'Пользователь';
     
-    // Загружаем полный профиль с бэкенда
+    // Загружаем полный профиль
     const userProfile = await usersApi.getProfile(user.id);
     if (userProfile) {
       user.phone = userProfile.telephone || '';
       user.group = userProfile.group || '';
-      user.avatar = userProfile.avatarPath || '';
-      
-      if (userProfile.experience) {
-        user.yearsOfExperience = userProfile.experience.years || 0;
-        user.projectsCompleted = userProfile.experience.projectsCompleted || 0;
-        user.technologies = userProfile.experience.technologies || [];
-      }
-      
-      if (userProfile.personalQualities) {
-        user.personalQualities = {
-          communication: userProfile.personalQualities.communication || 0,
-          teamwork: userProfile.personalQualities.teamwork || 0,
-          leadership: userProfile.personalQualities.leadership || 0,
-          reliability: userProfile.personalQualities.reliability || 0
-        };
-      }
+      avatarUrl.value = userProfile.avatarPath ? 
+        `${userProfile.avatarPath}?${Date.now()}` : 
+        defaultAvatar.value;
     }
   } catch (error) {
-    toast.error('Ошибка при загрузке данных профиля');
-    console.error(error);
+    console.error('Ошибка загрузки профиля:', error);
+    avatarUrl.value = defaultAvatar.value;
   }
 };
 
@@ -695,7 +792,6 @@ onMounted(() => {
   loadUserData();
 });
 </script>
-
 <style scoped>
 .profile-container {
   background-color: #f5f7fa;
@@ -1460,6 +1556,67 @@ onMounted(() => {
 .icon {
   width: 20px;
   text-align: center;
+}
+
+/* Добавляем новые стили для админ панели */
+.admin-section {
+  padding: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-btn {
+  background: #1a237e;
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.admin-btn:hover {
+  background: #283593;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-btn i {
+  font-size: 1.2rem;
+}
+
+/* Стили для кнопки удаления аватарки */
+.avatar-remove-btn {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f44336;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avatar-remove-btn:hover {
+  background: #d32f2f;
+  transform: scale(1.1);
 }
 </style>
 

@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref } from 'vue';
 import TIUUserDataTable from 'src/components/TIUUserDataTable.vue';
-import usersApi from '../api/users.api'; // Импортируем usersApi
+import { getAllUsers } from '../api/users.api'; // Импортируем getAllUsers
 import { SecuredUser } from '../../../backend/src/common/types';
 import { useRouter } from 'vue-router';
 
@@ -17,7 +17,7 @@ const router = useRouter();
 const usersList: Ref<SecuredUser[]> = ref([]);
 
 onMounted(async () => {
-  usersList.value = await usersApi.getAll();
+  usersList.value = await getAllUsers(); // Используем getAllUsers
   console.log(usersList.value);
 });
 

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { api } from './axios'; // Исправлено на правильный импорт
 import {
   CreateUserDto,
@@ -7,6 +8,8 @@ import {
   UpdateProfileDto,
   TechnologyName
 } from '../../../backend/src/common/types';
+
+const API_URL = 'http://localhost:3000/api/users'; // Замените на ваш фактический URL API
 
 export const getAllUsers = async (): Promise<SecuredUser[]> => {
   const response = await api.get('/users');
@@ -45,6 +48,11 @@ export const getUserProfile = async (id: number): Promise<SecuredUser | undefine
   return response.status === 200 ? response.data : undefined;
 };
 
+export const getProfile = async (id: number): Promise<SecuredUser | undefined> => {
+  const response = await api.get(`/users/${id}/profile`);
+  return response.status === 200 ? response.data : undefined;
+};
+
 export const updateUser = async (id: number, payload: UpdateUserDto): Promise<SecuredUser | undefined> => {
   const response = await api.patch(`/users/${id}`, payload);
   return response.status === 200 ? response.data : undefined;
@@ -71,17 +79,36 @@ export const removeTechnologies = async (userId: number, technologies: Technolog
 };
 
 const usersApi = {
-  getAll: getAllUsers,
-  create: createUser,
-  uploadAvatar,
-  getCurrentUser,
-  get: getUserById,
-  getProfile: getUserProfile,
-  update: updateUser,
-  updateProfile,
-  setUserStatus,
-  addTechnologies,
-  removeTechnologies
+  /**
+   * Получает пользователя по ID.
+   * @param id - Идентификатор пользователя.
+   * @returns Обещание с данными пользователя.
+   */
+  async get(id: number): Promise<SecuredUser> {
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Создает нового пользователя.
+   * @param user - Данные нового пользователя.
+   * @returns Обещание с данными созданного пользователя.
+   */
+  async create(user: CreateUserDto): Promise<SecuredUser> {
+    const response = await axios.post(API_URL, user);
+    return response.data;
+  },
+
+  /**
+   * Обновляет существующего пользователя.
+   * @param id - Идентификатор пользователя.
+   * @param user - Обновленные данные пользователя.
+   * @returns Обещание с данными обновленного пользователя.
+   */
+  async update(id: number, user: UpdateUserDto): Promise<SecuredUser> {
+    const response = await axios.put(`${API_URL}/${id}`, user);
+    return response.data;
+  }
 };
 
 export default usersApi;
