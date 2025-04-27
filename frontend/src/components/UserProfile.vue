@@ -20,6 +20,7 @@
     <button
       class="avatar-edit-btn"
       @click="fileInput.click()"
+      
     >
       <i class="fas fa-camera"></i>
     </button>
