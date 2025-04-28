@@ -44,9 +44,9 @@
         <div class="section-header">
           <h2>Личные данные</h2>
           <button
-            class="edit-toggle-btn"
-            @click="toggleEditMode"
-            v-tooltip="editMode ? 'Сохранить изменения' : 'Редактировать контакты'"
+             class="edit-toggle-btn"
+             @click="toggleEditMode"
+                :title="editMode ? 'Сохранить изменения' : 'Редактировать контакты'"
           >
             <i :class="editMode ? 'fas fa-save' : 'fas fa-edit'"></i>
             {{ editMode ? 'Сохранить' : 'Редактировать' }}
@@ -106,9 +106,9 @@
         <div class="section-header">
           <h2>Мои компетенции</h2>
           <button 
-            class="edit-toggle-btn" 
-            @click="toggleSkillsEditMode"
-            v-tooltip="editSkillsMode ? 'Сохранить изменения' : 'Редактировать компетенции'"
+          class="edit-toggle-btn" 
+  @click="toggleSkillsEditMode"
+  :title="editSkillsMode ? 'Сохранить изменения' : 'Редактировать компетенции'"
           >
             <i :class="editSkillsMode ? 'fas fa-save' : 'fas fa-edit'"></i>
             {{ editSkillsMode ? 'Сохранить' : 'Редактировать' }}
@@ -402,6 +402,7 @@ import { useMainStore } from '../stores/main-store';
 import * as usersApi from '../api/users.api';
 import { useRouter } from 'vue-router';
 import 'vue-toastification/dist/index.css';
+import { api } from '../api/axios'; // Или правильный путь к вашему файлу с axios
 
 const toast = useToast();
 const mainStore = useMainStore();
@@ -604,32 +605,17 @@ const truncateDescription = (desc) => {
   return desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
 };
 
-const triggerFileInput = () => {
-  fileInput.value.click();
-};
-
-
-
-// Вычисляем URL аватара с timestamp
-const getAvatarUrl = (path) => {
-  if (!path) return defaultAvatar.value;
-  return `${path}?${Date.now()}`;
-};
-
-// Обработчик ошибки загрузки изображения
-const handleImageError = () => {
-  avatarUrl.value = defaultAvatar.value;
-};
-
 const handleAvatarChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  if (!file.type.match('image.*')) {
+  // Проверка типа файла
+  if (!file.type.match(/image\/(jpeg|png|jpg)/)) {
     toast.error('Пожалуйста, выберите файл изображения (JPEG, PNG)');
     return;
   }
 
+  // Проверка размера файла
   if (file.size > 2 * 1024 * 1024) {
     toast.error('Размер файла не должен превышать 2MB');
     return;
@@ -638,24 +624,33 @@ const handleAvatarChange = async (e) => {
   avatarUploading.value = true;
 
   try {
-    const avatarPath = await usersApi.uploadAvatar(user.id, file);
-    if (avatarPath) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await usersApi.uploadAvatar(user.id, file);
+    
+    if (response) {
       // Обновляем URL с timestamp для предотвращения кэширования
-      avatarUrl.value = `${avatarPath}?${Date.now()}`;
+      avatarUrl.value = `${response}?t=${Date.now()}`;
       
       // Обновляем данные пользователя
-      const currentUser = mainStore.getCurrentUser();
-      if (currentUser) {
-        currentUser.avatar = avatarPath;
+      const updatedUser = await usersApi.getProfile(user.id);
+      if (updatedUser) {
+        Object.assign(user, {
+          firstName: updatedUser.firstname,
+          lastName: updatedUser.lastname,
+          avatar: updatedUser.avatarPath
+        });
       }
       
       toast.success('Аватар успешно обновлен');
     }
   } catch (error) {
-    toast.error('Ошибка при загрузке аватарки');
-    console.error(error);
+    console.error('Ошибка загрузки аватара:', error);
+    toast.error(error.response?.data?.message || 'Ошибка при загрузке аватарки');
   } finally {
     avatarUploading.value = false;
+    e.target.value = ''; // Сбрасываем input file
   }
 };
 
@@ -768,20 +763,20 @@ const loadUserData = async () => {
     const currentUser = mainStore.getCurrentUser();
     if (!currentUser) return;
     
-    user.id = currentUser.id;
-    user.firstName = currentUser.firstname;
-    user.lastName = currentUser.lastname;
-    user.email = currentUser.email;
-    user.role = isAdmin.value ? 'Администратор' : 'Пользователь';
-    
-    // Загружаем полный профиль
-    const userProfile = await usersApi.getProfile(user.id);
+    const userProfile = await usersApi.getProfile(currentUser.id);
     if (userProfile) {
+      user.id = currentUser.id;
+      user.firstName = userProfile.firstname;
+      user.lastName = userProfile.lastname;
+      user.email = userProfile.email;
       user.phone = userProfile.telephone || '';
       user.group = userProfile.group || '';
-      avatarUrl.value = userProfile.avatarPath ? 
-        `${userProfile.avatarPath}?${Date.now()}` : 
-        defaultAvatar.value;
+      user.role = userProfile.roles?.includes('admin') ? 'Администратор' : 'Пользователь';
+      
+      // Обновляем аватар
+      avatarUrl.value = userProfile.avatarPath 
+        ? `${userProfile.avatarPath}?t=${Date.now()}` 
+        : defaultAvatar.value;
     }
   } catch (error) {
     console.error('Ошибка загрузки профиля:', error);

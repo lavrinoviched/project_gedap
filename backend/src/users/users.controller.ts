@@ -24,6 +24,8 @@ import {
   UserAccountStatus
 } from 'src/common/types';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('users')
 export class UsersController {
@@ -97,8 +99,13 @@ async uploadAvatar(
   @Param('id') id: number,
   @UploadedFile() avatar: Express.Multer.File,
 ) {
+  if (!avatar) {
+    throw new Error('Файл не был загружен');
+  }
+  
   const avatarPath = `/uploads/avatars/${avatar.filename}`;
-  return this.usersService.updateProfile(id, { avatarPath });
+  await this.usersService.updateProfile(id, { avatarPath });
+  return { avatarPath };
 }
 
   @Patch(':id')

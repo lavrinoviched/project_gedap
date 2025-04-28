@@ -30,8 +30,14 @@ export const uploadAvatar = async (userId: number, file: File): Promise<string> 
       'Content-Type': 'multipart/form-data'
     }
   });
+  
+  if (response.status !== 200) {
+    throw new Error('Failed to upload avatar');
+  }
+  
   return response.data.avatarPath;
 };
+
 
 export const getCurrentUser = async (): Promise<SecuredUser | undefined> => {
   const response = await api.get('/users/me');
